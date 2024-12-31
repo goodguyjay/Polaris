@@ -1,0 +1,34 @@
+<Window
+    x:Class="Polaris.UI.Views.MainWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:views="using:Polaris.UI.Views.Controls"
+    xmlns:vm="using:Polaris.UI.ViewModels"
+    Title="Polaris"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:MainWindowViewModel"
+    ExtendClientAreaTitleBarHeightHint="-1"
+    ExtendClientAreaToDecorationsHint="True"
+    Icon="/Assets/avalonia-logo.ico"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+
+    <DockPanel Background="#1E1E1E">
+        <views:TitleBar />
+
+        <Grid ColumnDefinitions="*, *" RowDefinitions="*">
+            <TextBox
+                Grid.Column="0"
+                AcceptsReturn="True"
+                Background="#1E1E1E"
+                FontSize="14"
+                Text="{Binding MarkdownText, Mode=TwoWay}" />
+
+            <ContentControl Grid.Column="1" Content="{Binding MarkdownPreview}" />
+
+        </Grid>
+    </DockPanel>
+</Window>
