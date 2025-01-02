@@ -16,19 +16,21 @@
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
-    <DockPanel Background="#1E1E1E">
-        <views:TitleBar />
+	<DockPanel Background="#1E1E1E">
+		<views:TitleBar />
 
-        <Grid ColumnDefinitions="*, *" RowDefinitions="*">
-            <TextBox
+		<Grid ColumnDefinitions="*, 5,*" RowDefinitions="*">
+			<TextBox
                 Grid.Column="0"
                 AcceptsReturn="True"
                 Background="#1E1E1E"
                 FontSize="14"
                 Text="{Binding MarkdownText, Mode=TwoWay}" />
 
-            <ContentControl Grid.Column="1" Content="{Binding MarkdownPreview}" />
+			<GridSplitter Grid.Column="1" Width="5" Background="#333" HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
 
-        </Grid>
-    </DockPanel>
+			<ContentControl Grid.Column="2" Content="{Binding MarkdownPreview}" />
+
+		</Grid>
+	</DockPanel>
 </Window>
