@@ -1,59 +1,59 @@
 ﻿<UserControl
-    x:Class="Polaris.UI.Views.Controls.TitleBar"
-    xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    DockPanel.Dock="Top"
     d:DesignHeight="450"
     d:DesignWidth="800"
-    DockPanel.Dock="Top"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    x:Class="Polaris.UI.Views.Controls.TitleBar"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <DockPanel Height="30" Background="#2D2D2D">
+    <DockPanel Background="#2D2D2D" Height="30">
         <StackPanel
             DockPanel.Dock="Left"
             Orientation="Horizontal"
             Spacing="5">
 
             <Image
-                Width="20"
                 Height="20"
                 Margin="10,0,0,0"
+                Source="/Assets/NorthStar.ico"
                 VerticalAlignment="Center"
-                Source="/Assets/Images/banana-white.ico" />
+                Width="20" />
 
             <TextBlock
-                VerticalAlignment="Center"
                 FontSize="14"
                 FontWeight="Bold"
                 Foreground="#FFFFFF"
-                Text="Polaris" />
+                Text="Polaris"
+                VerticalAlignment="Center" />
         </StackPanel>
 
         <StackPanel
-            Margin="10,0,10,0"
             DockPanel.Dock="Right"
+            Margin="10,0,10,0"
             Orientation="Horizontal"
             Spacing="5">
             <Button
-                Width="80"
-                Height="30"
-                VerticalAlignment="Center"
-                HorizontalContentAlignment="Center"
                 Background="#454545"
                 Content="New File"
                 FontSize="14"
-                Foreground="#FFFFFF" />
+                Foreground="#FFFFFF"
+                Height="30"
+                HorizontalContentAlignment="Center"
+                VerticalAlignment="Center"
+                Width="80" />
 
             <Button
-                Width="80"
-                Height="30"
-                VerticalAlignment="Center"
-                HorizontalContentAlignment="Center"
                 Background="#454545"
                 Content="Export"
                 FontSize="14"
-                Foreground="#FFFFFF" />
+                Foreground="#FFFFFF"
+                Height="30"
+                HorizontalContentAlignment="Center"
+                VerticalAlignment="Center"
+                Width="80" />
         </StackPanel>
 
     </DockPanel>

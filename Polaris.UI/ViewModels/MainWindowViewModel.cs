@@ -7,24 +7,23 @@ namespace Polaris.UI.ViewModels;
 
 public sealed partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly IMarkdownRenderer _markdownRenderer;
-
     [ObservableProperty]
     private string _markdownText = string.Empty;
 
     [ObservableProperty]
     private Control _markdownPreview = new TextBlock { Text = "Preview will appear here." };
 
-    public MainWindowViewModel(IMarkdownRenderer markdownRenderer)
+    public MainWindowViewModel(IMarkdownParser parser, IMarkdownRendererService rendererService)
     {
-        _markdownRenderer = markdownRenderer;
+        var mdParser = parser;
+        var mdRenderer = rendererService;
 
-        PropertyChanged += (s, e) =>
+        PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(MarkdownText))
-            {
-                MarkdownPreview = _markdownRenderer.RenderMarkdown(MarkdownText);
-            }
+            if (e.PropertyName != nameof(MarkdownText)) return;
+            
+            var ast = mdParser.Parse(MarkdownText);
+            MarkdownPreview = mdRenderer.RenderMarkdown(ast);
         };
     }
 }

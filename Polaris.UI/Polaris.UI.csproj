@@ -10,7 +10,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Assets\Images\" />
     <Folder Include="Models\" />
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
@@ -32,4 +31,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Polaris.Core\Polaris.Core.csproj" />
   </ItemGroup>
+  
+  <PropertyGroup>
+    <ApplicationIcon>Assets\NorthStar.ico</ApplicationIcon>
+  </PropertyGroup>
 </Project>

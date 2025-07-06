@@ -66,7 +66,7 @@ public partial class App : Application
     {
         services.AddSingleton<IMarkdownParser, MarkdownParser>();
         services.AddSingleton<IFileService, FileService>();
-        services.AddSingleton<IMarkdownRenderer, MarkdownRenderer>();
+        services.AddSingleton<IMarkdownRendererService, MarkdownRendererService>();
     }
 
     private static void RegisterViewModels(IServiceCollection services)

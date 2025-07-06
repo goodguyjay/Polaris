@@ -1,6 +1,8 @@
-﻿namespace Polaris.Core.Services.Interfaces;
+﻿using Markdig.Syntax;
+
+namespace Polaris.Core.Services.Interfaces;
 
 public interface IMarkdownParser
 {
-    string Parse(string markdownText);
+    MarkdownDocument Parse(string markdownText);
 }

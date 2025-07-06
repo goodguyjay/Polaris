@@ -1,16 +1,33 @@
 <Application
+    RequestedThemeVariant="Default"
     x:Class="Polaris.UI.App"
     xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Polaris.UI"
-    RequestedThemeVariant="Default">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
 
     <Application.DataTemplates>
         <local:ViewLocator />
     </Application.DataTemplates>
 
+    <Application.Resources>
+        <FontFamily x:Key="Inter">avares://Polaris.UI/Assets/Fonts/Inter/Inter-Regular.ttf#Inter</FontFamily>
+    </Application.Resources>
+
     <Application.Styles>
         <FluentTheme />
+
+        <Style Selector="TextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource Inter}" />
+        </Style>
+
+        <Style Selector="TextBox">
+            <Setter Property="FontFamily" Value="{StaticResource Inter}" />
+        </Style>
+
+        <Style Selector="Button">
+            <Setter Property="FontFamily" Value="{StaticResource Inter}" />
+        </Style>
+
     </Application.Styles>
 </Application>
