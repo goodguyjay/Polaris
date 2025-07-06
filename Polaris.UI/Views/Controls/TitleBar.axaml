@@ -6,6 +6,7 @@
     x:Class="Polaris.UI.Views.Controls.TitleBar"
     xmlns="https://github.com/avaloniaui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Polaris.UI.Views.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
@@ -38,6 +39,17 @@
             <Button
                 Background="#454545"
                 Content="New File"
+                FontSize="14"
+                Foreground="#FFFFFF"
+                Height="30"
+                HorizontalContentAlignment="Center"
+                VerticalAlignment="Center"
+                Width="80" />
+
+            <Button
+                Background="#454545"
+                Command="{Binding OpenFileCommand, RelativeSource={RelativeSource AncestorType=local:TitleBar}}"
+                Content="Open"
                 FontSize="14"
                 Foreground="#FFFFFF"
                 Height="30"

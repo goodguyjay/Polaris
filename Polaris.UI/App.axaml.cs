@@ -32,16 +32,21 @@ public partial class App : Application
             var serviceCollection = new ServiceCollection();
 
             RegisterServices(serviceCollection);
-            RegisterViewModels(serviceCollection);
+            // RegisterViewModels(serviceCollection);
 
             ServiceProvider = serviceCollection.BuildServiceProvider();
+            
+            var mainWindow = new MainWindow();
+            
+            var fileService = ServiceProvider.GetRequiredService<IFileService>();
+            var parser = ServiceProvider.GetRequiredService<IMarkdownParser>();
+            var renderer = ServiceProvider.GetRequiredService<IMarkdownRendererService>();
 
-            // Avoid duplicate validations from both Avalonia and the CommunityToolkit.
-            // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
+            
             desktop.MainWindow = new MainWindow
             {
-                DataContext = ServiceProvider.GetRequiredService<MainWindowViewModel>(),
+                DataContext = new MainWindowViewModel(fileService, parser, renderer, mainWindow),
             };
         }
 
