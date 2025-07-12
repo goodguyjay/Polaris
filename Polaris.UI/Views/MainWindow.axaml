@@ -1,41 +1,41 @@
 <Window
-    ExtendClientAreaTitleBarHeightHint="-1"
-    ExtendClientAreaToDecorationsHint="True"
-    Icon="/Assets/NorthStar.ico"
-    Title="Polaris"
-    WindowStartupLocation="CenterScreen"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
-    mc:Ignorable="d"
     x:Class="Polaris.UI.Views.MainWindow"
-    x:DataType="vm:MainWindowViewModel"
     xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:controls="using:Polaris.UI.Views.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:Polaris.UI.ViewModels"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    Title="Polaris"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:MainWindowViewModel"
+    ExtendClientAreaTitleBarHeightHint="-1"
+    ExtendClientAreaToDecorationsHint="True"
+    Icon="/Assets/NorthStar.ico"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
 
 
     <DockPanel Background="#1E1E1E">
-        <controls:TitleBar OpenFileCommand="{Binding OpenFileCommand}" />
+        <controls:TitleBar OpenFileCommand="{Binding OpenFileCommand}" SaveFileCommand="{Binding SaveFileCommand}" />
 
         <Grid ColumnDefinitions="*, 5,*" RowDefinitions="*">
             <TextBox
+                Grid.Column="0"
                 AcceptsReturn="True"
                 Background="#1E1E1E"
                 FontSize="14"
-                Grid.Column="0"
                 Text="{Binding MarkdownText, Mode=TwoWay}" />
 
             <GridSplitter
-                Background="#333"
                 Grid.Column="1"
+                Width="5"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Stretch"
-                Width="5" />
+                Background="#333" />
 
-            <ContentControl Content="{Binding MarkdownPreview}" Grid.Column="2" />
+            <ContentControl Grid.Column="2" Content="{Binding MarkdownPreview}" />
 
         </Grid>
     </DockPanel>

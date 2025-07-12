@@ -2,10 +2,8 @@
 using Avalonia;
 using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
-using Polaris.Core.Services.Implementations;
-using Polaris.Core.Services.Interfaces;
-using Polaris.UI.Services.Implementations;
-using Polaris.UI.Services.Interfaces;
+using Polaris.Core.Services.Markdown;
+using Polaris.UI.Services.Markdown;
 
 namespace Polaris.UI;
 
@@ -21,7 +19,6 @@ internal sealed class Program
     {
         var services = new ServiceCollection();
 
-        services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IMarkdownRendererService, MarkdownRendererService>();
         services.AddSingleton<IMarkdownParser, MarkdownParser>();
         

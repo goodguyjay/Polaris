@@ -1,71 +1,72 @@
 ﻿<UserControl
-    DockPanel.Dock="Top"
-    d:DesignHeight="450"
-    d:DesignWidth="800"
-    mc:Ignorable="d"
     x:Class="Polaris.UI.Views.Controls.TitleBar"
     xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Polaris.UI.Views.Controls"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    DockPanel.Dock="Top"
+    mc:Ignorable="d">
 
-    <DockPanel Background="#2D2D2D" Height="30">
+    <DockPanel Height="30" Background="#2D2D2D">
         <StackPanel
             DockPanel.Dock="Left"
             Orientation="Horizontal"
             Spacing="5">
 
             <Image
+                Width="20"
                 Height="20"
                 Margin="10,0,0,0"
-                Source="/Assets/NorthStar.ico"
                 VerticalAlignment="Center"
-                Width="20" />
+                Source="/Assets/NorthStar.ico" />
 
             <TextBlock
+                VerticalAlignment="Center"
                 FontSize="14"
                 FontWeight="Bold"
                 Foreground="#FFFFFF"
-                Text="Polaris"
-                VerticalAlignment="Center" />
+                Text="Polaris" />
         </StackPanel>
 
         <StackPanel
-            DockPanel.Dock="Right"
             Margin="10,0,10,0"
+            DockPanel.Dock="Right"
             Orientation="Horizontal"
             Spacing="5">
             <Button
-                Background="#454545"
-                Content="New File"
-                FontSize="14"
-                Foreground="#FFFFFF"
+                Width="80"
                 Height="30"
-                HorizontalContentAlignment="Center"
                 VerticalAlignment="Center"
-                Width="80" />
+                HorizontalContentAlignment="Center"
+                Background="#454545"
+                Command="{Binding SaveFileCommand, RelativeSource={RelativeSource AncestorType=local:TitleBar}}"
+                Content="Save"
+                FontSize="14"
+                Foreground="#FFFFFF" />
 
             <Button
+                Width="80"
+                Height="30"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Center"
                 Background="#454545"
                 Command="{Binding OpenFileCommand, RelativeSource={RelativeSource AncestorType=local:TitleBar}}"
                 Content="Open"
                 FontSize="14"
-                Foreground="#FFFFFF"
-                Height="30"
-                HorizontalContentAlignment="Center"
-                VerticalAlignment="Center"
-                Width="80" />
+                Foreground="#FFFFFF" />
 
             <Button
+                Width="80"
+                Height="30"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Center"
                 Background="#454545"
                 Content="Export"
                 FontSize="14"
-                Foreground="#FFFFFF"
-                Height="30"
-                HorizontalContentAlignment="Center"
-                VerticalAlignment="Center"
-                Width="80" />
+                Foreground="#FFFFFF" />
         </StackPanel>
 
     </DockPanel>

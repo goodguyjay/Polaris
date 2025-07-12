@@ -2,14 +2,11 @@ using System;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
-using Polaris.Core.Services.Implementations;
-using Polaris.Core.Services.Interfaces;
-using Polaris.UI.Services.Implementations;
-using Polaris.UI.Services.Interfaces;
+using Polaris.Core.Services.Markdown;
+using Polaris.UI.Services.Markdown;
 using Polaris.UI.ViewModels;
 using Polaris.UI.Views;
 
@@ -38,7 +35,6 @@ public partial class App : Application
             
             var mainWindow = new MainWindow();
             
-            var fileService = ServiceProvider.GetRequiredService<IFileService>();
             var parser = ServiceProvider.GetRequiredService<IMarkdownParser>();
             var renderer = ServiceProvider.GetRequiredService<IMarkdownRendererService>();
 
@@ -46,7 +42,7 @@ public partial class App : Application
             
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(fileService, parser, renderer, mainWindow),
+                DataContext = new MainWindowViewModel(parser, renderer, mainWindow),
             };
         }
 
@@ -70,7 +66,6 @@ public partial class App : Application
     private static void RegisterServices(IServiceCollection services)
     {
         services.AddSingleton<IMarkdownParser, MarkdownParser>();
-        services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IMarkdownRendererService, MarkdownRendererService>();
     }
 

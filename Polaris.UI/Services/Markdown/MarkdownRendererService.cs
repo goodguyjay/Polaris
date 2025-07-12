@@ -1,11 +1,8 @@
-﻿using System.Linq;
-using Avalonia.Controls;
-using Avalonia.Media;
+﻿using Avalonia.Controls;
 using Markdig.Syntax;
 using Polaris.UI.Rendering;
-using Polaris.UI.Services.Interfaces;
 
-namespace Polaris.UI.Services.Implementations;
+namespace Polaris.UI.Services.Markdown;
 
 public class MarkdownRendererService : IMarkdownRendererService
 {

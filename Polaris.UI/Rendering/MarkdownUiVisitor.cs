@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
 using Markdig.Syntax;
+using Markdig.Syntax.Inlines;
 
 namespace Polaris.UI.Rendering;
 
@@ -12,27 +13,42 @@ public sealed class MarkdownUiVisitor : IMarkdownUiVisitor
 {
     public Control Visit(HeadingBlock heading)
     {
-        var text = string.Join("", heading.Inline!.Select(i => i.ToString()));
-
-        return new TextBlock
+        var tb =  new TextBlock
         {
-            Text = text,
             FontSize = 16 + (6 - heading.Level) * 2, // Dynamic font size based on heading level
             FontWeight = FontWeight.Bold,
             TextWrapping = TextWrapping.Wrap,
         };
+        
+        foreach (var inline in MarkdownRenderer.RenderInlines(heading.Inline))
+            tb.Inlines?.Add(inline);
+
+        return tb;
     }
 
     public Control Visit(ParagraphBlock paragraph)
     {
+        var text = paragraph.Inline?.FirstChild is LiteralInline lit
+                   && string.IsNullOrWhiteSpace(lit.Content.ToString())
+            ? string.Empty
+            : null;
+        
         var textBlock = new TextBlock
         {
             FontSize = 14,
             TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(0, 0, 0, 8)
         };
-        
-        foreach (var inline in MarkdownRenderer.RenderInlines(paragraph.Inline))
-            textBlock.Inlines?.Add(inline);
+
+        if (text != null)
+        {
+            
+        }
+        else
+        {
+            foreach (var inline in MarkdownRenderer.RenderInlines(paragraph.Inline))
+                textBlock.Inlines?.Add(inline);
+        }
 
         return textBlock;
     }
@@ -95,7 +111,7 @@ public sealed class MarkdownUiVisitor : IMarkdownUiVisitor
             );
 
         // extract language info if available
-        var language = (code as Markdig.Syntax.FencedCodeBlock)?.Info;
+        var language = (code as FencedCodeBlock)?.Info;
 
         return new Border
         {
