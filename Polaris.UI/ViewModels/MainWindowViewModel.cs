@@ -26,8 +26,20 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private Control _markdownPreview = new TextBlock { Text = "Preview will appear here." };
     
+    [ObservableProperty]
+    private bool _isSplashVisible = true;
+    
     public MainWindowViewModel(IMarkdownParser parser, IMarkdownRendererService rendererService, Window mainWindow)
     {
+        IsSplashVisible = true;
+        #if !DEBUG
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(2500); // Simulate loading time
+            Avalonia.Threading.Dispatcher.UIThread.Post(() => IsSplashVisible = false);
+        });
+        #endif
+        
         _markdownParser = parser;
         _markdownRenderer = rendererService;
         _mainWindow = mainWindow;
@@ -46,6 +58,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         Console.WriteLine($"Title: {doc.Metadata.Title}");
         Console.WriteLine($"First heading: {doc.Blocks.OfType<Heading>().FirstOrDefault()?.Inlines.OfType<TextRun>().FirstOrDefault()?.Text}");
     }
+
+    public void DismissSplash() => IsSplashVisible = false;
 
     [RelayCommand]
     private async Task OpenFileAsync()

@@ -1,0 +1,61 @@
+﻿<UserControl
+    x:Class="Polaris.UI.Views.Controls.SplashScreen"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:Polaris.UI.Views.Controls;assembly=Polaris.UI"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:Polaris.UI.ViewModels;assembly=Polaris.UI"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    x:DataType="vm:MainWindowViewModel"
+    mc:Ignorable="d">
+
+    <Grid Background="#10141A">
+        <!--  stars  -->
+        <controls:StarField
+            x:Name="StarField"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch" />
+
+        <TextBlock
+            Name="PolarisText"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            FontSize="48"
+            FontWeight="Bold"
+            Foreground="#FFF6E7B4"
+            Opacity="1"
+            Text="Polaris"
+            TextAlignment="Center" />
+
+        <StackPanel
+            Margin="0,0,0,48"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom">
+
+            <TextBlock
+                Name="LoadingText"
+                Margin="0,0,0,16"
+                FontSize="20"
+                Foreground="#FFDDE6FF"
+                Opacity="1"
+                Text="Loading..."
+                TextAlignment="Center" />
+
+            <!--  TODO: animated dots or orbiting star  -->
+
+            <!--  debug button to continue  -->
+            <Button
+                x:Name="ContinueButton"
+                Width="100"
+                Height="36"
+                Margin="0,0,0,32"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Click="OnContinueClicked"
+                Content="Continue"
+                IsVisible="False" />
+        </StackPanel>
+    </Grid>
+</UserControl>

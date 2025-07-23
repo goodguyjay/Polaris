@@ -16,27 +16,29 @@
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
 
+    <Grid>
+        <DockPanel Background="#1E1E1E">
+            <controls:TitleBar OpenFileCommand="{Binding OpenFileCommand}" SaveFileCommand="{Binding SaveFileCommand}" />
 
-    <DockPanel Background="#1E1E1E">
-        <controls:TitleBar OpenFileCommand="{Binding OpenFileCommand}" SaveFileCommand="{Binding SaveFileCommand}" />
+            <Grid ColumnDefinitions="*, 5,*" RowDefinitions="*">
+                <TextBox
+                    Grid.Column="0"
+                    AcceptsReturn="True"
+                    Background="#1E1E1E"
+                    FontSize="14"
+                    Text="{Binding MarkdownText, Mode=TwoWay}" />
 
-        <Grid ColumnDefinitions="*, 5,*" RowDefinitions="*">
-            <TextBox
-                Grid.Column="0"
-                AcceptsReturn="True"
-                Background="#1E1E1E"
-                FontSize="14"
-                Text="{Binding MarkdownText, Mode=TwoWay}" />
+                <GridSplitter
+                    Grid.Column="1"
+                    Width="5"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Stretch"
+                    Background="#333" />
 
-            <GridSplitter
-                Grid.Column="1"
-                Width="5"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Stretch"
-                Background="#333" />
+                <ContentControl Grid.Column="2" Content="{Binding MarkdownPreview}" />
+            </Grid>
+        </DockPanel>
 
-            <ContentControl Grid.Column="2" Content="{Binding MarkdownPreview}" />
-
-        </Grid>
-    </DockPanel>
+        <controls:SplashScreen x:Name="Splash" IsVisible="{Binding IsSplashVisible}" />
+    </Grid>
 </Window>
