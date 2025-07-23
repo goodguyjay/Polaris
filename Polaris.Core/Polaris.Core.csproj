@@ -11,10 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Markdig" Version="0.41.3" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="example.polar">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

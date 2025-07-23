@@ -5,8 +5,6 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
-using Polaris.Core.Services.Markdown;
-using Polaris.UI.Services.Markdown;
 using Polaris.UI.ViewModels;
 using Polaris.UI.Views;
 
@@ -28,21 +26,15 @@ public partial class App : Application
         {
             var serviceCollection = new ServiceCollection();
 
-            RegisterServices(serviceCollection);
-            // RegisterViewModels(serviceCollection);
-
             ServiceProvider = serviceCollection.BuildServiceProvider();
-            
+
             var mainWindow = new MainWindow();
-            
-            var parser = ServiceProvider.GetRequiredService<IMarkdownParser>();
-            var renderer = ServiceProvider.GetRequiredService<IMarkdownRendererService>();
 
             DisableAvaloniaDataAnnotationValidation();
-            
+
             desktop.MainWindow = new MainWindow
             {
-                DataContext = new MainWindowViewModel(parser, renderer, mainWindow),
+                DataContext = new MainWindowViewModel(mainWindow),
             };
         }
 
@@ -61,16 +53,5 @@ public partial class App : Application
         {
             BindingPlugins.DataValidators.Remove(plugin);
         }
-    }
-
-    private static void RegisterServices(IServiceCollection services)
-    {
-        services.AddSingleton<IMarkdownParser, MarkdownParser>();
-        services.AddSingleton<IMarkdownRendererService, MarkdownRendererService>();
-    }
-
-    private static void RegisterViewModels(IServiceCollection services)
-    {
-        services.AddSingleton<MainWindowViewModel>();
     }
 }

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Avalonia.Controls;
-using Avalonia.Controls.Shapes;
+﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Threading;
 using Polaris.UI.ViewModels;
 
 namespace Polaris.UI.Views.Controls;

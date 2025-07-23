@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,105 +7,119 @@ using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Polaris.Core.Document;
 using Polaris.Core.Document.Elements;
 using Polaris.Core.Document.InlineElements;
 using Polaris.Core.Parsing;
-using Polaris.Core.Services.Markdown;
-using Polaris.UI.Services.Markdown;
 
 namespace Polaris.UI.ViewModels;
 
 public sealed partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly IMarkdownParser _markdownParser;
-    private readonly IMarkdownRendererService _markdownRenderer;
-    private readonly Window _mainWindow;
-    
-    [ObservableProperty]
-    private string _markdownText = string.Empty;
+    private PolarDocument? _polarDocument;
 
     [ObservableProperty]
-    private Control _markdownPreview = new TextBlock { Text = "Preview will appear here." };
-    
+    private string _documentText = string.Empty;
+
     [ObservableProperty]
     private bool _isSplashVisible = true;
-    
-    public MainWindowViewModel(IMarkdownParser parser, IMarkdownRendererService rendererService, Window mainWindow)
+
+    private readonly Window _mainWindow;
+
+    public MainWindowViewModel(Window mainWindow)
     {
         IsSplashVisible = true;
-        #if !DEBUG
+#if !DEBUG
         _ = Task.Run(async () =>
         {
             await Task.Delay(2500); // Simulate loading time
             Avalonia.Threading.Dispatcher.UIThread.Post(() => IsSplashVisible = false);
         });
-        #endif
-        
-        _markdownParser = parser;
-        _markdownRenderer = rendererService;
+#endif
         _mainWindow = mainWindow;
 
-        PropertyChanged += (_, e) =>
-        {
-            if (e.PropertyName != nameof(MarkdownText)) return;
-            
-            var ast = _markdownParser.Parse(MarkdownText);
-            MarkdownPreview = _markdownRenderer.RenderMarkdown(ast);
-        };
+        if (!File.Exists("example.polar"))
+            return;
 
         using var fs = File.OpenRead("example.polar");
-        var doc = PolarDocumentParser.Load(fs);
-
-        Console.WriteLine($"Title: {doc.Metadata.Title}");
-        Console.WriteLine($"First heading: {doc.Blocks.OfType<Heading>().FirstOrDefault()?.Inlines.OfType<TextRun>().FirstOrDefault()?.Text}");
+        _polarDocument = PolarDocumentParser.Load(fs);
+        DocumentText = DocumentToPlainText(_polarDocument);
     }
 
     public void DismissSplash() => IsSplashVisible = false;
 
-    [RelayCommand]
-    private async Task OpenFileAsync()
+    private static string DocumentToPlainText(PolarDocument doc)
     {
-        var storageProvider = _mainWindow.StorageProvider;
-        var files = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        var lines = new List<string>();
+        foreach (var block in doc.Blocks)
         {
-            Title = "Open Markdown File",
-            AllowMultiple = false,
-            FileTypeFilter =
-            [
-                new FilePickerFileType("Markdown") { Patterns = ["*.md"] },
-                new FilePickerFileType("Text") { Patterns = ["*.txt"] }
-            ]
-        });
+            switch (block)
+            {
+                case Heading h:
+                    lines.Add(
+                        string.Join(string.Empty, h.Inlines.OfType<TextRun>().Select(x => x.Text))
+                    );
+                    break;
+
+                case Paragraph p:
+                    lines.Add(
+                        string.Join(string.Empty, p.Inlines.OfType<TextRun>().Select(x => x.Text))
+                    );
+                    break;
+
+                case ListBlock l:
+                    lines.AddRange(
+                        l.Items.Select(item =>
+                            string.Join("", item.Inlines.OfType<TextRun>().Select(x => x.Text))
+                        )
+                    );
+                    break;
+
+                case CodeBlock c:
+                    lines.Add(c.Code);
+                    break;
+            }
+        }
+
+        return string.Join(Environment.NewLine, lines);
+    }
+
+    [RelayCommand]
+    public async Task OpenPolarFileAsync()
+    {
+        var files = await _mainWindow.StorageProvider.OpenFilePickerAsync(
+            new FilePickerOpenOptions
+            {
+                Title = "Open Polaris Document",
+                AllowMultiple = false,
+                FileTypeFilter = [new FilePickerFileType("Polaris") { Patterns = ["*.polar"] }],
+            }
+        );
 
         if (files is { Count: > 0 })
         {
-            var file = files[0];
-            await using var stream = await file.OpenReadAsync();
-            using var reader = new StreamReader(stream);
-            MarkdownText = await reader.ReadToEndAsync();
+            await using var stream = await files[0].OpenReadAsync();
+            _polarDocument = PolarDocumentParser.Load(stream);
+            DocumentText = DocumentToPlainText(_polarDocument);
         }
     }
 
     [RelayCommand]
-    private async Task SaveFileAsync()
+    public async Task SavePolarFileAsync()
     {
-        var storageProvider = _mainWindow.StorageProvider;
-        var files = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
-        {
-            Title = "Save Markdown File",
-            SuggestedFileName = "Untitled.md",
-            FileTypeChoices =
-            [
-                new FilePickerFileType("Markdown") { Patterns = ["*.md"] },
-                new FilePickerFileType("Text") { Patterns = ["*.txt"] }
-            ]
-        });
+        var files = await _mainWindow.StorageProvider.SaveFilePickerAsync(
+            new FilePickerSaveOptions
+            {
+                Title = "Save Polaris File",
+                SuggestedFileName = "Untitled.polar",
+                FileTypeChoices = [new FilePickerFileType("Polaris") { Patterns = ["*.polar"] }],
+            }
+        );
 
-        if (files is not null)
+        if (files is not null && _polarDocument is not null)
         {
             await using var stream = await files.OpenWriteAsync();
-            await using var writer = new StreamWriter(stream);
-            await writer.WriteAsync(MarkdownText);
+            PolarXmlWriter.Save(_polarDocument, stream);
         }
     }
 }

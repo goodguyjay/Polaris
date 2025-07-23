@@ -18,7 +18,7 @@
 
     <Grid>
         <DockPanel Background="#1E1E1E">
-            <controls:TitleBar OpenFileCommand="{Binding OpenFileCommand}" SaveFileCommand="{Binding SaveFileCommand}" />
+            <controls:TitleBar OpenFileCommand="{Binding OpenPolarFileAsync}" SaveFileCommand="{Binding SavePolarFileAsync}" />
 
             <Grid ColumnDefinitions="*, 5,*" RowDefinitions="*">
                 <TextBox
@@ -26,7 +26,7 @@
                     AcceptsReturn="True"
                     Background="#1E1E1E"
                     FontSize="14"
-                    Text="{Binding MarkdownText, Mode=TwoWay}" />
+                    Text="{Binding DocumentText, Mode=TwoWay}" />
 
                 <GridSplitter
                     Grid.Column="1"
@@ -35,7 +35,7 @@
                     VerticalAlignment="Stretch"
                     Background="#333" />
 
-                <ContentControl Grid.Column="2" Content="{Binding MarkdownPreview}" />
+                <ContentControl Grid.Column="2" Content="{Binding DocumentText}" />
             </Grid>
         </DockPanel>
 
