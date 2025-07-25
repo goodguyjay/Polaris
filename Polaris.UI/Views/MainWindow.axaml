@@ -17,28 +17,92 @@
     mc:Ignorable="d">
 
     <Grid>
-        <DockPanel Background="#1E1E1E">
+        <controls:SplashScreen x:Name="Splash" IsVisible="{Binding IsSplashVisible}" />
+
+        <DockPanel Background="#181A20" IsVisible="{Binding IsSplashVisible, Converter={StaticResource InverseBooleanConverter}}">
             <controls:TitleBar OpenFileCommand="{Binding OpenPolarFileAsync}" SaveFileCommand="{Binding SavePolarFileAsync}" />
 
-            <Grid ColumnDefinitions="*, 5,*" RowDefinitions="*">
-                <TextBox
+            <Grid
+                Margin="0,0,0,0"
+                ColumnDefinitions="*, 6,*"
+                RowDefinitions="*">
+                <Border
                     Grid.Column="0"
-                    AcceptsReturn="True"
-                    Background="#1E1E1E"
-                    FontSize="14"
-                    Text="{Binding DocumentText, Mode=TwoWay}" />
+                    Margin="16"
+                    Padding="0"
+                    Background="#22242C"
+                    BorderBrush="#252732"
+                    BorderThickness="1"
+                    CornerRadius="18"
+                    Effect="{DynamicResource MaterialShadowDepth2}">
+                    <Grid>
+                        <TextBlock
+                            Margin="12,8,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Foreground="#B7BCD1"
+                            Opacity="0.75"
+                            Text="Editor" />
+
+                        <TextBox
+                            Margin="12,32,12,12"
+                            Padding="14"
+                            HorizontalAlignment="Stretch"
+                            VerticalAlignment="Stretch"
+                            AcceptsReturn="True"
+                            Background="#181A20"
+                            BorderBrush="#22242C"
+                            BorderThickness="0"
+                            CornerRadius="14"
+                            FontFamily="Consolas, JetBrains Mono, Cascadia Code, monospace"
+                            FontSize="14"
+                            Foreground="#E3E6F0"
+                            Text="{Binding DocumentText, Mode=TwoWay}" />
+                    </Grid>
+                </Border>
 
                 <GridSplitter
                     Grid.Column="1"
-                    Width="5"
+                    Width="6"
+                    Margin="0,24"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Stretch"
-                    Background="#333" />
+                    Background="#232630"
+                    Cursor="SizeWestEast" />
 
-                <ContentControl Grid.Column="2" Content="{Binding DocumentText}" />
+                <Border
+                    Grid.Column="2"
+                    Margin="16"
+                    Padding="0"
+                    Background="#21232B"
+                    BorderBrush="#252732"
+                    BorderThickness="1"
+                    CornerRadius="18"
+                    Effect="{DynamicResource MaterialShadowDepth2}">
+                    <Grid>
+                        <TextBlock
+                            Margin="12,8,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top"
+                            FontSize="12"
+                            FontWeight="Bold"
+                            Foreground="#B7BCD1"
+                            Opacity="0.75"
+                            Text="Preview" />
+
+                        <ScrollViewer Margin="12,32,12,12">
+                            <ContentControl
+                                Content="{Binding DocumentText}"
+                                FontFamily="Inter, Segoe UI, sans-serif"
+                                FontSize="14"
+                                Foreground="#9ECFFF" />
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
             </Grid>
         </DockPanel>
 
-        <controls:SplashScreen x:Name="Splash" IsVisible="{Binding IsSplashVisible}" />
     </Grid>
 </Window>

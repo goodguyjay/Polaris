@@ -10,63 +10,116 @@
     DockPanel.Dock="Top"
     mc:Ignorable="d">
 
-    <DockPanel Height="30" Background="#2D2D2D">
+    <DockPanel Height="40">
+        <DockPanel.Background>
+            <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
+                <GradientStop Offset="0" Color="#23232B" />
+                <GradientStop Offset="1" Color="#292B36" />
+            </LinearGradientBrush>
+        </DockPanel.Background>
+
+        <!--  left: logo + app name  -->
         <StackPanel
+            Margin="12,0,12,0"
+            VerticalAlignment="Center"
             DockPanel.Dock="Left"
             Orientation="Horizontal"
-            Spacing="5">
+            Spacing="8">
 
             <Image
-                Width="20"
-                Height="20"
-                Margin="10,0,0,0"
+                Width="24"
+                Height="24"
                 VerticalAlignment="Center"
-                Source="/Assets/NorthStar.ico" />
+                RenderTransformOrigin="0.5, 0.5"
+                Source="/Assets/NorthStar.ico">
+                <Image.Effect>
+                    <DropShadowEffect
+                        BlurRadius="6"
+                        Opacity="0.25"
+                        Color="#7EC7FF" />
+                </Image.Effect>
+            </Image>
 
             <TextBlock
                 VerticalAlignment="Center"
-                FontSize="14"
-                FontWeight="Bold"
-                Foreground="#FFFFFF"
+                FontSize="17"
+                FontWeight="SemiBold"
+                Foreground="#E3E6F0"
+                LetterSpacing="0.5"
                 Text="Polaris" />
         </StackPanel>
 
+        <!--  right: buttons  -->
         <StackPanel
-            Margin="10,0,10,0"
+            Margin="0,0,10,0"
+            VerticalAlignment="Center"
             DockPanel.Dock="Right"
             Orientation="Horizontal"
             Spacing="5">
             <Button
-                Width="80"
+                Width="72"
                 Height="30"
                 VerticalAlignment="Center"
                 HorizontalContentAlignment="Center"
-                Background="#454545"
-                Command="{Binding SaveFileCommand, RelativeSource={RelativeSource AncestorType=local:TitleBar}}"
-                Content="Save"
-                FontSize="14"
-                Foreground="#FFFFFF" />
-
-            <Button
-                Width="80"
-                Height="30"
-                VerticalAlignment="Center"
-                HorizontalContentAlignment="Center"
-                Background="#454545"
+                VerticalContentAlignment="Center"
+                Background="#2A2D3A"
+                BorderBrush="#2D7DF7"
+                BorderThickness="0"
                 Command="{Binding OpenFileCommand, RelativeSource={RelativeSource AncestorType=local:TitleBar}}"
                 Content="Open"
-                FontSize="14"
-                Foreground="#FFFFFF" />
+                CornerRadius="10"
+                FontSize="13"
+                Foreground="#B7BCD1">
+                <Button.Styles>
+                    <Style Selector="Button:pointerover">
+                        <Setter Property="Background" Value="#313545" />
+                        <Setter Property="Foreground" Value="#FFFFFF" />
+                    </Style>
+                </Button.Styles>
+            </Button>
 
             <Button
-                Width="80"
+                Width="72"
                 Height="30"
                 VerticalAlignment="Center"
                 HorizontalContentAlignment="Center"
-                Background="#454545"
+                VerticalContentAlignment="Center"
+                Background="#2A2D3A"
+                BorderBrush="#2D7DF7"
+                BorderThickness="0"
+                Command="{Binding SaveFileCommand, RelativeSource={RelativeSource AncestorType=local:TitleBar}}"
+                Content="Save"
+                CornerRadius="10"
+                FontSize="13"
+                Foreground="#B7BCD1">
+                <Button.Styles>
+                    <Style Selector="Button:pointerover">
+                        <Setter Property="Background" Value="#313545" />
+                        <Setter Property="Foreground" Value="#FFFFFF" />
+                    </Style>
+                </Button.Styles>
+            </Button>
+
+            <Button
+                Width="78"
+                Height="30"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                Background="#2A2D3A"
+                BorderBrush="#7EC7FF"
+                BorderThickness="0"
                 Content="Export"
-                FontSize="14"
-                Foreground="#FFFFFF" />
+                CornerRadius="10"
+                FontSize="13"
+                Foreground="#7EC7FF">
+                <Button.Styles>
+                    <Style Selector="Button:pointerover">
+                        <Setter Property="Background" Value="#242839" />
+                        <Setter Property="Foreground" Value="#B7BCD1" />
+                    </Style>
+                </Button.Styles>
+            </Button>
         </StackPanel>
 
     </DockPanel>

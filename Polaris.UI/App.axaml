@@ -1,9 +1,10 @@
 <Application
-    RequestedThemeVariant="Default"
     x:Class="Polaris.UI.App"
     xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:Polaris.UI.Views.Converters"
     xmlns:local="using:Polaris.UI"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    RequestedThemeVariant="Default">
     <!--  "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options.  -->
 
     <Application.DataTemplates>
@@ -11,7 +12,17 @@
     </Application.DataTemplates>
 
     <Application.Resources>
+        <!--  Converters  -->
+        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+
         <FontFamily x:Key="Inter">avares://Polaris.UI/Assets/Fonts/Inter/Inter-Regular.ttf#Inter</FontFamily>
+
+        <!--  shadow effects  -->
+        <DropShadowEffect
+            x:Key="MaterialShadowDepth2"
+            BlurRadius="12"
+            Opacity="0.17"
+            Color="#CC000000" />
     </Application.Resources>
 
     <Application.Styles>
