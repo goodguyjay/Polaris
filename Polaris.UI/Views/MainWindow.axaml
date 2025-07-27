@@ -94,7 +94,7 @@
 
                         <ScrollViewer Margin="12,32,12,12">
                             <ContentControl
-                                Content="{Binding DocumentText}"
+                                Content="{Binding PolarPreview}"
                                 FontFamily="Inter, Segoe UI, sans-serif"
                                 FontSize="14"
                                 Foreground="#9ECFFF" />

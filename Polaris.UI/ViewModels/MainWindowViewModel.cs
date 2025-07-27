@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -11,6 +13,7 @@ using Polaris.Core.Document;
 using Polaris.Core.Document.Elements;
 using Polaris.Core.Document.InlineElements;
 using Polaris.Core.Parsing;
+using Polaris.UI.DocumentRendering;
 
 namespace Polaris.UI.ViewModels;
 
@@ -22,7 +25,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     private string _documentText = string.Empty;
 
     [ObservableProperty]
+    private Control _polarPreview = new TextBlock { Text = "Preview will appear here." };
+
+    [ObservableProperty]
     private bool _isSplashVisible = true;
+
+    private readonly PolarSyntaxParser _parser = new();
 
     private readonly Window _mainWindow;
 
@@ -38,12 +46,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 #endif
         _mainWindow = mainWindow;
 
+        PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(DocumentText))
+            {
+                UpdatePolarPreview();
+            }
+        };
+
         if (!File.Exists("example.polar"))
             return;
 
         using var fs = File.OpenRead("example.polar");
         _polarDocument = PolarDocumentParser.Load(fs);
         DocumentText = DocumentToPlainText(_polarDocument);
+        PolarPreview = RenderPolarPreview(_polarDocument);
     }
 
     public void DismissSplash() => IsSplashVisible = false;
@@ -84,6 +101,32 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         return string.Join(Environment.NewLine, lines);
     }
 
+    private static StackPanel RenderPolarPreview(PolarDocument doc)
+    {
+        var renderer = new UiVisitor();
+        var rootPanel = new StackPanel { Orientation = Orientation.Vertical };
+        foreach (var block in doc.Blocks)
+            rootPanel.Children.Add(block.Accept(renderer));
+        return rootPanel;
+    }
+
+    private void UpdatePolarPreview()
+    {
+        PolarDocument doc;
+
+        try
+        {
+            doc = _parser.Parse(DocumentText);
+        }
+        catch
+        {
+            PolarPreview = new TextBlock { Text = "Parsing error!", Foreground = Brushes.Red };
+            return;
+        }
+
+        PolarPreview = RenderPolarPreview(doc);
+    }
+
     [RelayCommand]
     public async Task OpenPolarFileAsync()
     {
@@ -100,7 +143,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         {
             await using var stream = await files[0].OpenReadAsync();
             _polarDocument = PolarDocumentParser.Load(stream);
-            DocumentText = DocumentToPlainText(_polarDocument);
+            PolarPreview = RenderPolarPreview(_polarDocument);
         }
     }
 
