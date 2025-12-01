@@ -48,10 +48,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
         PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(DocumentText))
-            {
-                UpdatePolarPreview();
-            }
+            if (e.PropertyName != nameof(DocumentText))
+                return;
+
+            _polarDocument = _parser.Parse(DocumentText);
+            UpdatePolarPreview();
         };
 
         if (!File.Exists("example.polar"))
@@ -143,6 +144,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         {
             await using var stream = await files[0].OpenReadAsync();
             _polarDocument = PolarDocumentParser.Load(stream);
+            DocumentText = DocumentToPlainText(_polarDocument);
             PolarPreview = RenderPolarPreview(_polarDocument);
         }
     }

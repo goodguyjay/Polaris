@@ -2,6 +2,7 @@
     x:Class="Polaris.UI.Views.Controls.SplashScreen"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:animations="clr-namespace:Avalonia.Animation;assembly=Avalonia.Base"
     xmlns:controls="clr-namespace:Polaris.UI.Views.Controls;assembly=Polaris.UI"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -18,16 +19,36 @@
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch" />
 
-        <TextBlock
-            x:Name="PolarisText"
-            Margin="0"
+        <!--  center block  -->
+        <StackPanel
+            x:Name="CenterPanel"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            FontSize="48"
-            FontWeight="Bold"
-            Foreground="#FFF6E7B4"
-            Text="Polaris" />
+            Spacing="24">
 
+            <TextBlock
+                x:Name="PolarisText"
+                Margin="0"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                FontFamily="Segoe UI Semibold, Inter, sans-serif"
+                FontSize="54"
+                FontWeight="Bold"
+                Foreground="#FFF6E7B4"
+                Text="Polaris">
+
+                <TextBlock.Transitions>
+                    <animations:Transitions>
+                        <DoubleTransition Property="Opacity" Duration="0:0:0.20" />
+                    </animations:Transitions>
+                </TextBlock.Transitions>
+            </TextBlock>
+
+            <!--  insert tag line here  -->
+            <!--  dunno what yet  -->
+        </StackPanel>
+
+        <!--  primary buttons  -->
         <StackPanel
             Margin="0,0,0,48"
             HorizontalAlignment="Center"

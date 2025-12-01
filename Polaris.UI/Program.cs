@@ -2,6 +2,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Polaris.UI;
 
@@ -18,6 +19,12 @@ internal sealed class Program
         var services = new ServiceCollection();
 
         Services = services.BuildServiceProvider();
+        
+        services.AddLogging(logging =>
+        {
+            logging.ClearProviders();
+            logging.AddConsole();
+        });
 
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args, ShutdownMode.OnMainWindowClose);
     }

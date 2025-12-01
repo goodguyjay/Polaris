@@ -91,10 +91,18 @@ public static class PolarXmlWriter
                 writer.WriteAttributeString("level", h.Level.ToString());
                 WriteCommonBlockAttributes(h, writer);
                 WriteInlines(h.Inlines, writer);
-                writer.WriteEndElement();
+                break;
+            }
+            case Paragraph p:
+            {
+                writer.WriteStartElement("p");
+                WriteCommonBlockAttributes(p, writer);
+                WriteInlines(p.Inlines, writer);
                 break;
             }
         }
+
+        writer.WriteEndElement();
     }
 
     private static void WriteCommonBlockAttributes(BlockElement block, XmlWriter writer)

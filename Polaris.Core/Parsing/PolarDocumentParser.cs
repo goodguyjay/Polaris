@@ -33,6 +33,8 @@ public static class PolarDocumentParser
 
             while (reader.NodeType == XmlNodeType.Element)
             {
+                Console.WriteLine($"reader at: {reader.NodeType}, name: {reader.Name}");
+
                 if (reader.Name == "metadata")
                 {
                     doc.Metadata = ParseMetadata(reader);
@@ -45,6 +47,9 @@ public static class PolarDocumentParser
                 }
             }
 
+            Console.WriteLine(
+                $"reader at: {reader.NodeType}, name: {reader.Name} // just before reading end element"
+            );
             reader.ReadEndElement();
         }
         else
@@ -52,12 +57,23 @@ public static class PolarDocumentParser
             reader.Read();
         }
 
+        Console.WriteLine(
+            $"reader at: {reader.NodeType}, name: {reader.Name} // after reading end element"
+        );
+
         return doc;
     }
 
     private static Metadata ParseMetadata(XmlReader reader)
     {
         var metadata = new Metadata();
+
+        if (reader.IsEmptyElement)
+        {
+            reader.Read(); // skip empty <metadata/>
+            return metadata;
+        }
+
         reader.ReadStartElement("metadata");
 
         while (reader.NodeType == XmlNodeType.Element)
@@ -154,10 +170,18 @@ public static class PolarDocumentParser
         {
             Id = reader.GetAttribute("id"),
             Style = reader.GetAttribute("style"),
-            Inlines = ParseInlineElements(reader),
         };
 
-        reader.ReadEndElement(); // </p>
+        if (!reader.IsEmptyElement)
+        {
+            para.Inlines = ParseInlineElements(reader);
+            reader.ReadEndElement(); // </p>
+        }
+        else
+        {
+            reader.Read(); // skip empty <p/>
+        }
+
         return para;
     }
 
