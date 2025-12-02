@@ -100,6 +100,44 @@ public static class PolarXmlWriter
                 WriteInlines(p.Inlines, writer);
                 break;
             }
+            case CodeBlock cb:
+            {
+                writer.WriteStartElement("code");
+                if (!string.IsNullOrWhiteSpace(cb.Language))
+                    writer.WriteAttributeString("language", cb.Language);
+                WriteCommonBlockAttributes(cb, writer);
+                writer.WriteString(cb.Code);
+                break;
+            }
+            case HorizontalRule hr:
+            {
+                writer.WriteStartElement("hr");
+                WriteCommonBlockAttributes(hr, writer);
+                // self closing, no content
+                break;
+            }
+            case ListBlock lb:
+            {
+                writer.WriteStartElement("list");
+                writer.WriteAttributeString("type", lb.Type.ToString().ToLowerInvariant()); // "bullet" or "ordered"
+                WriteCommonBlockAttributes(lb, writer);
+
+                foreach (var item in lb.Items)
+                {
+                    writer.WriteStartElement("item");
+                    WriteInlines(item.Inlines, writer);
+                    writer.WriteEndElement();
+                }
+
+                break;
+            }
+            case Blank b:
+            {
+                writer.WriteStartElement("blank");
+                WriteCommonBlockAttributes(b, writer);
+                // self closing, no content
+                break;
+            }
         }
 
         writer.WriteEndElement();

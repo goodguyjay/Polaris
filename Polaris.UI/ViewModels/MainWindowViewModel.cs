@@ -74,9 +74,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             switch (block)
             {
                 case Heading h:
-                    lines.Add(
-                        string.Join(string.Empty, h.Inlines.OfType<TextRun>().Select(x => x.Text))
+                    var prefix = new string('#', h.Level);
+                    var headingText = string.Join(
+                        string.Empty,
+                        h.Inlines.OfType<TextRun>().Select(x => x.Text)
                     );
+                    lines.Add($"{prefix} {headingText}");
                     break;
 
                 case Paragraph p:
@@ -87,14 +90,33 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
                 case ListBlock l:
                     lines.AddRange(
-                        l.Items.Select(item =>
-                            string.Join("", item.Inlines.OfType<TextRun>().Select(x => x.Text))
+                        l.Items.Select(
+                            (item, index) =>
+                            {
+                                var itemText = string.Join(
+                                    "",
+                                    item.Inlines.OfType<TextRun>().Select(x => x.Text)
+                                );
+                                var itemPrefix =
+                                    l.Type == ListType.Bullet ? "- " : $"{index + 1}. ";
+                                return $"{itemPrefix}{itemText}";
+                            }
                         )
                     );
                     break;
 
                 case CodeBlock c:
+                    lines.Add("```" + (c.Language ?? ""));
                     lines.Add(c.Code);
+                    lines.Add("```");
+                    break;
+
+                case HorizontalRule:
+                    lines.Add("---");
+                    break;
+
+                case Blank:
+                    lines.Add(string.Empty);
                     break;
             }
         }

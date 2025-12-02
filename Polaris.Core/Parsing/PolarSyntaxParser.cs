@@ -13,9 +13,11 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
         var lines = input.Split('\n');
         var paragraphLines = new List<string>();
         var listItems = new List<string>();
+        var listType = ListType.Bullet;
         var inCodeBlock = false;
         string? codeLang = null;
         var codeLines = new List<string>();
+        var blankLineCount = 0;
 
         foreach (var lineRaw in lines)
         {
@@ -25,6 +27,7 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
             {
                 FlushParagraph();
                 FlushList();
+                FlushBlanks();
 
                 if (!inCodeBlock)
                 {
@@ -52,7 +55,27 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
 
             if (string.IsNullOrEmpty(line))
             {
-                paragraphLines.Add(string.Empty);
+                // flush active contexts
+                if (listItems.Count > 0)
+                {
+                    FlushList();
+                }
+
+                if (paragraphLines.Count > 0)
+                {
+                    FlushParagraph();
+                }
+
+                blankLineCount++;
+                continue;
+            }
+
+            if (HorizontalRuleRegex().IsMatch(line))
+            {
+                FlushParagraph();
+                FlushList();
+                FlushBlanks();
+                doc.Blocks.Add(new HorizontalRule());
                 continue;
             }
 
@@ -68,11 +91,35 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
                 continue;
             }
 
-            if (ListItemRegex().IsMatch(line))
+            if (BulletListItemRegex().IsMatch(line))
             {
                 FlushParagraph();
-                listItems.Add(line.TrimStart('-', ' '));
 
+                // if switching list types, flush the previous list
+                if (listItems.Count > 0 && listType == ListType.Ordered)
+                {
+                    FlushList();
+                }
+
+                listType = ListType.Bullet;
+                listItems.Add(line.TrimStart('-', '*', '+', ' '));
+                continue;
+            }
+
+            if (OrderedListItemRegex().IsMatch(line))
+            {
+                FlushParagraph();
+                FlushBlanks();
+
+                // if switching list types, flush the previous list
+                if (listItems.Count > 0 && listType == ListType.Bullet)
+                {
+                    FlushList();
+                }
+
+                listType = ListType.Ordered;
+                var match = OrderedListItemRegex().Match(line);
+                listItems.Add(match.Groups[2].Value); // capture text after number and dot
                 continue;
             }
 
@@ -81,11 +128,14 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
                 FlushList();
             }
 
+            FlushBlanks();
+
             paragraphLines.Add(line);
         }
 
         FlushParagraph();
         FlushList();
+        FlushBlanks();
 
         return doc;
 
@@ -95,6 +145,13 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
                 return;
 
             var paragraphText = string.Join('\n', paragraphLines);
+
+            if (string.IsNullOrWhiteSpace(paragraphText))
+            {
+                paragraphLines.Clear();
+                return;
+            }
+
             doc.Blocks.Add(new Paragraph { Inlines = ParseInlines(paragraphText) });
             paragraphLines.Clear();
         }
@@ -107,13 +164,23 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
             doc.Blocks.Add(
                 new ListBlock
                 {
-                    Type = ListType.Bullet,
+                    Type = listType,
                     Items = listItems
                         .Select(text => new ListItem { Inlines = ParseInlines(text) })
                         .ToList(),
                 }
             );
             listItems.Clear();
+        }
+
+        void FlushBlanks()
+        {
+            for (var i = 0; i < blankLineCount; i++)
+            {
+                doc.Blocks.Add(new Blank());
+            }
+
+            blankLineCount = 0;
         }
     }
 
@@ -187,8 +254,14 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
     [GeneratedRegex(@"^(#{1,6})\s+(.*)$")]
     private static partial Regex HeadingRegex();
 
-    [GeneratedRegex(@"^\s*-\s")]
-    private static partial Regex ListItemRegex();
+    [GeneratedRegex(@"^---+$|^\*\*\*+$|^___+$")]
+    private static partial Regex HorizontalRuleRegex();
+
+    [GeneratedRegex(@"^\s*[-*+]\s")]
+    private static partial Regex BulletListItemRegex();
+
+    [GeneratedRegex(@"^\s*(\d+)\.\s+(.*)$")]
+    private static partial Regex OrderedListItemRegex();
 
     [GeneratedRegex(@"\*\*(.+?)\*\*")]
     private static partial Regex BoldRegex();

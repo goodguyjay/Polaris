@@ -71,14 +71,16 @@ public sealed class UiVisitor : IBlockElementVisitor<Control>, IInlineElementVis
         {
             Text = codeBlock.Code,
             FontFamily = "Consolas, JetBrains Mono, Cascadia Code, monospace",
-            Background = Brushes.LightGray,
+            Background = Brushes.DarkGray,
             Margin = new Thickness(0, 8, 0, 8),
             IsReadOnly = true,
         };
     }
 
-    public Control VisitHorizontalRule(HorizontalRule horizontalRule) =>
+    public Control VisitHorizontalRule(HorizontalRule _) =>
         new Separator { Margin = new Thickness(0, 8, 0, 8) };
+
+    public Control VisitBlank(Blank _) => new Border { Height = 20 };
 
     public Inline VisitTextRun(TextRun text) => new Run { Text = text.Text };
 

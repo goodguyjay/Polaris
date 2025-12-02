@@ -138,6 +138,9 @@ public static class PolarDocumentParser
             case "hr":
                 reader.ReadStartElement("hr");
                 return new HorizontalRule();
+            case "blank":
+                reader.ReadStartElement("blank");
+                return new Blank();
 
             default:
                 reader.Skip();
@@ -190,7 +193,7 @@ public static class PolarDocumentParser
         var typeStr = reader.GetAttribute("type") ?? "bullet";
         var list = new ListBlock
         {
-            Type = typeStr == "numbered" ? ListType.Numbered : ListType.Bullet,
+            Type = typeStr == "numbered" ? ListType.Ordered : ListType.Bullet,
             Id = reader.GetAttribute("id"),
             Style = reader.GetAttribute("style"),
         };
