@@ -115,9 +115,15 @@ public sealed class UiVisitor : IBlockElementVisitor<Control>, IInlineElementVis
     public Inline VisitLink(Link link)
     {
         // mvp will just render link text, not clickable
-        var span = new Span();
+        var span = new Span
+        {
+            Foreground = Brushes.Blue,
+            TextDecorations = TextDecorations.Underline,
+        };
         foreach (var child in link.Children)
             span.Inlines.Add(child.Accept(this));
+
+        // todo: add tooltip with href/title and make clickable
         return span;
     }
 }

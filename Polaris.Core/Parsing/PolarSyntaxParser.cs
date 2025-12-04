@@ -210,8 +210,9 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
             var boldMatch = BoldRegex().Match(remaining);
             var italicMatch = ItalicRegex().Match(remaining);
             var codeMatch = CodeRegex().Match(remaining);
+            var linkMatch = LinkRegex().Match(remaining);
 
-            var first = new[] { boldMatch, italicMatch, codeMatch }
+            var first = new[] { boldMatch, italicMatch, codeMatch, linkMatch }
                 .Where(m => m.Success)
                 .OrderBy(m => m.Index)
                 .FirstOrDefault();
@@ -243,6 +244,17 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
             {
                 inlines.Add(new InlineCode { Code = codeMatch.Groups[1].Value });
             }
+            else if (first == linkMatch)
+            {
+                inlines.Add(
+                    new Link
+                    {
+                        Href = linkMatch.Groups[2].Value,
+                        Title = linkMatch.Groups[3].Success ? linkMatch.Groups[3].Value : null,
+                        Children = [new TextRun { Text = linkMatch.Groups[1].Value }],
+                    }
+                );
+            }
 
             remaining = remaining[(first.Index + first.Length)..];
         }
@@ -270,4 +282,11 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
 
     [GeneratedRegex("`(.+?)`")]
     private static partial Regex CodeRegex();
+
+    /// <summary>
+    ///  Example: [link text](http://example.com "optional title")
+    /// </summary>
+    /// <returns></returns>
+    [GeneratedRegex("""\[([^\]]+)\]\(([^\)]+?)(?:\s+"([^"]*)")?\)""")]
+    private static partial Regex LinkRegex();
 }

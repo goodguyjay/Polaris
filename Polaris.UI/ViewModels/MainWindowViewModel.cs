@@ -75,17 +75,12 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             {
                 case Heading h:
                     var prefix = new string('#', h.Level);
-                    var headingText = string.Join(
-                        string.Empty,
-                        h.Inlines.OfType<TextRun>().Select(x => x.Text)
-                    );
+                    var headingText = string.Join(string.Empty, h.Inlines.Select(InlineToText));
                     lines.Add($"{prefix} {headingText}");
                     break;
 
                 case Paragraph p:
-                    lines.Add(
-                        string.Join(string.Empty, p.Inlines.OfType<TextRun>().Select(x => x.Text))
-                    );
+                    lines.Add(string.Join(string.Empty, p.Inlines.Select(InlineToText)));
                     break;
 
                 case ListBlock l:
@@ -94,8 +89,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                             (item, index) =>
                             {
                                 var itemText = string.Join(
-                                    "",
-                                    item.Inlines.OfType<TextRun>().Select(x => x.Text)
+                                    string.Empty,
+                                    item.Inlines.Select(InlineToText)
                                 );
                                 var itemPrefix =
                                     l.Type == ListType.Bullet ? "- " : $"{index + 1}. ";
@@ -123,6 +118,21 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         }
 
         return string.Join(Environment.NewLine, lines);
+    }
+
+    private static string InlineToText(InlineElement inline)
+    {
+        return inline switch
+        {
+            TextRun t => t.Text,
+            Strong s => string.Join(string.Empty, s.Children.Select(InlineToText)),
+            Emphasis e => string.Join(string.Empty, e.Children.Select(InlineToText)),
+            InlineCode c => $"`{c.Code}`",
+            Link l =>
+                $"[{string.Join("", l.Children.Select(InlineToText))}]({l.Href}{(l.Title != null ? $" \"{l.Title}\"" : "")})",
+            LineBreak => "\n",
+            _ => string.Empty,
+        };
     }
 
     private static StackPanel RenderPolarPreview(PolarDocument doc)
