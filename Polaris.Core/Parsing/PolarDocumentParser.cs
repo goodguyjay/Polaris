@@ -139,8 +139,7 @@ public static class PolarDocumentParser
                 reader.ReadStartElement("hr");
                 return new HorizontalRule();
             case "blank":
-                reader.ReadStartElement("blank");
-                return new Blank();
+                return ParseBlank(reader);
 
             default:
                 reader.Skip();
@@ -223,6 +222,13 @@ public static class PolarDocumentParser
         };
 
         return code;
+    }
+
+    private static Blank ParseBlank(XmlReader reader)
+    {
+        var count = reader.GetAttribute("count");
+        reader.ReadStartElement("blank");
+        return new Blank { Count = int.TryParse(count, out var c) ? c : 1 };
     }
 
     // helper: inline elements (basic impl, can be expanded)

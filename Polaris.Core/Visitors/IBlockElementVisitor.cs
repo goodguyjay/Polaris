@@ -9,5 +9,5 @@ public interface IBlockElementVisitor<out T>
     T VisitHorizontalRule(HorizontalRule _);
     T VisitListBlock(ListBlock listBlock);
     T VisitParagraph(Paragraph paragraph);
-    T VisitBlank(Blank _);
+    T VisitBlank(Blank blank);
 }

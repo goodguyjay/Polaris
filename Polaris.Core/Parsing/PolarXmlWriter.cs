@@ -134,6 +134,8 @@ public static class PolarXmlWriter
             case Blank b:
             {
                 writer.WriteStartElement("blank");
+                if (b.Count > 1)
+                    writer.WriteAttributeString("count", b.Count.ToString());
                 WriteCommonBlockAttributes(b, writer);
                 // self closing, no content
                 break;

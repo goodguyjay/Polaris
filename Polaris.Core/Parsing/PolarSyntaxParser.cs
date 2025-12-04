@@ -175,11 +175,10 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
 
         void FlushBlanks()
         {
-            for (var i = 0; i < blankLineCount; i++)
-            {
-                doc.Blocks.Add(new Blank());
-            }
+            if (blankLineCount <= 0)
+                return;
 
+            doc.Blocks.Add(new Blank { Count = blankLineCount });
             blankLineCount = 0;
         }
     }

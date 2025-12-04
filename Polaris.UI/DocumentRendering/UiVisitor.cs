@@ -80,7 +80,7 @@ public sealed class UiVisitor : IBlockElementVisitor<Control>, IInlineElementVis
     public Control VisitHorizontalRule(HorizontalRule _) =>
         new Separator { Margin = new Thickness(0, 8, 0, 8) };
 
-    public Control VisitBlank(Blank _) => new Border { Height = 20 };
+    public Control VisitBlank(Blank blank) => new Border { Height = 20 * blank.Count };
 
     public Inline VisitTextRun(TextRun text) => new Run { Text = text.Text };
 

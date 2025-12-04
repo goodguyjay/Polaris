@@ -115,8 +115,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
                     lines.Add("---");
                     break;
 
-                case Blank:
-                    lines.Add(string.Empty);
+                case Blank b:
+                    for (var i = 0; i < b.Count; i++)
+                        lines.Add(string.Empty);
                     break;
             }
         }
