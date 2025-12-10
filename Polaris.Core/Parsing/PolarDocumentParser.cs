@@ -91,11 +91,15 @@ public static class PolarDocumentParser
                         break;
 
                     case "a":
-                        inlines.Add(ParseLink(reader));
+                        inlines.Add(ParseLink(reader)); // </a>
                         break;
 
                     case "code":
-                        inlines.Add(new InlineCode { Code = reader.ReadElementContentAsString() });
+                        inlines.Add(new InlineCode { Code = reader.ReadElementContentAsString() }); // </code>
+                        break;
+
+                    case "img":
+                        inlines.Add(ParseImage(reader)); // <img/> is self-closing
                         break;
 
                     default:
@@ -288,6 +292,20 @@ public static class PolarDocumentParser
         reader.ReadEndElement(); // </a>
 
         return link;
+    }
+
+    private static Image ParseImage(XmlReader reader)
+    {
+        var src = reader.GetAttribute("src") ?? string.Empty;
+        var alt = reader.GetAttribute("alt") ?? string.Empty;
+        var title = reader.GetAttribute("title");
+        reader.ReadStartElement("img");
+        return new Image
+        {
+            Src = src,
+            Alt = alt,
+            Title = title,
+        };
     }
 
     private static DateTime? ParseDate(string? value)

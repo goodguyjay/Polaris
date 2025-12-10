@@ -189,6 +189,15 @@ public static class PolarXmlWriter
                     writer.WriteString(code.Code);
                     writer.WriteEndElement();
                     break;
+
+                case Image img:
+                    writer.WriteStartElement("img");
+                    writer.WriteAttributeString("src", img.Src);
+                    writer.WriteAttributeString("alt", img.Alt);
+                    if (!string.IsNullOrWhiteSpace(img.Title))
+                        writer.WriteAttributeString("title", img.Title);
+                    writer.WriteEndElement();
+                    break;
             }
         }
     }

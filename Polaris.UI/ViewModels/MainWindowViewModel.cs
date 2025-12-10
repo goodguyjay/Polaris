@@ -14,12 +14,15 @@ using Polaris.Core.Document.Elements;
 using Polaris.Core.Document.InlineElements;
 using Polaris.Core.Parsing;
 using Polaris.UI.DocumentRendering;
+using Image = Polaris.Core.Document.InlineElements.Image;
 
 namespace Polaris.UI.ViewModels;
 
 public sealed partial class MainWindowViewModel : ViewModelBase
 {
     private PolarDocument? _polarDocument;
+
+    private string? _currentDocumentDirectory;
 
     [ObservableProperty]
     private string _documentText = string.Empty;
@@ -51,12 +54,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             if (e.PropertyName != nameof(DocumentText))
                 return;
 
-            _polarDocument = _parser.Parse(DocumentText);
+            _polarDocument = _parser.Parse(DocumentText, _currentDocumentDirectory);
             UpdatePolarPreview();
         };
 
         if (!File.Exists("example.polar"))
             return;
+
+        _currentDocumentDirectory = Path.GetDirectoryName(Path.GetFullPath("example.polar"));
 
         using var fs = File.OpenRead("example.polar");
         _polarDocument = PolarDocumentParser.Load(fs);
@@ -130,6 +135,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             InlineCode c => $"`{c.Code}`",
             Link l =>
                 $"[{string.Join("", l.Children.Select(InlineToText))}]({l.Href}{(l.Title != null ? $" \"{l.Title}\"" : "")})",
+            Image img => $"![{img.Alt}]({img.Src}{(img.Title != null ? $" \"{img.Title}\"" : "")})",
             LineBreak => "\n",
             _ => string.Empty,
         };
@@ -150,7 +156,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
         try
         {
-            doc = _parser.Parse(DocumentText);
+            doc = _parser.Parse(DocumentText, _currentDocumentDirectory);
         }
         catch
         {
@@ -175,6 +181,9 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
         if (files is { Count: > 0 })
         {
+            var file = files[0];
+            _currentDocumentDirectory = Path.GetDirectoryName(file.Path.LocalPath);
+
             await using var stream = await files[0].OpenReadAsync();
             _polarDocument = PolarDocumentParser.Load(stream);
             DocumentText = DocumentToPlainText(_polarDocument);

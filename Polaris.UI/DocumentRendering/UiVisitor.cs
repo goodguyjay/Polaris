@@ -1,4 +1,5 @@
-﻿using Avalonia;
+﻿using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Layout;
@@ -6,6 +7,7 @@ using Avalonia.Media;
 using Polaris.Core.Document.Elements;
 using Polaris.Core.Document.InlineElements;
 using Polaris.Core.Visitors;
+using Image = Polaris.Core.Document.InlineElements.Image;
 using LineBreak = Polaris.Core.Document.InlineElements.LineBreak;
 
 namespace Polaris.UI.DocumentRendering;
@@ -125,5 +127,34 @@ public sealed class UiVisitor : IBlockElementVisitor<Control>, IInlineElementVis
 
         // todo: add tooltip with href/title and make clickable
         return span;
+    }
+
+    public Inline VisitImage(Image image)
+    {
+        if (!image.Src.StartsWith("data:image/"))
+            return new Run { Text = $"[Image: {image.Alt}]" };
+
+        try
+        {
+            var base64Data = image.Src.Split(',')[1];
+            var bytes = Convert.FromBase64String(base64Data);
+
+            using var stream = new System.IO.MemoryStream(bytes);
+            var bitmap = new Avalonia.Media.Imaging.Bitmap(stream);
+
+            return new InlineUIContainer
+            {
+                Child = new Avalonia.Controls.Image
+                {
+                    Source = bitmap,
+                    MaxWidth = 600, // default max width
+                    Stretch = Stretch.Uniform,
+                },
+            };
+        }
+        catch
+        {
+            return new Run { Text = $"[Invalid image data: {image.Alt}]" };
+        }
     }
 }
