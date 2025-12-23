@@ -82,24 +82,29 @@ public static class PolarDocumentParser
                 {
                     case "strong":
                         inlines.Add(new Strong { Children = ParseInlineElements(reader) });
-                        reader.ReadEndElement(); // </strong>
+                        reader.ReadEndElement();
                         break;
 
                     case "em":
                         inlines.Add(new Emphasis { Children = ParseInlineElements(reader) });
-                        reader.ReadEndElement(); // </em>
+                        reader.ReadEndElement();
                         break;
 
                     case "a":
-                        inlines.Add(ParseLink(reader)); // </a>
+                        inlines.Add(ParseLink(reader));
                         break;
 
                     case "code":
-                        inlines.Add(new InlineCode { Code = reader.ReadElementContentAsString() }); // </code>
+                        inlines.Add(new InlineCode { Code = reader.ReadElementContentAsString() });
                         break;
 
                     case "img":
-                        inlines.Add(ParseImage(reader)); // <img/> is self-closing
+                        inlines.Add(ParseImage(reader));
+                        break;
+
+                    case "br":
+                        reader.Read();
+                        inlines.Add(new LineBreak());
                         break;
 
                     default:
@@ -298,11 +303,13 @@ public static class PolarDocumentParser
     {
         var src = reader.GetAttribute("src") ?? string.Empty;
         var alt = reader.GetAttribute("alt") ?? string.Empty;
+        var originalPath = reader.GetAttribute("original-path");
         var title = reader.GetAttribute("title");
         reader.ReadStartElement("img");
         return new Image
         {
             Src = src,
+            OriginalPath = originalPath,
             Alt = alt,
             Title = title,
         };

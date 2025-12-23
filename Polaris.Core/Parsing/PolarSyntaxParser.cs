@@ -98,6 +98,7 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
             if (BulletListItemRegex().IsMatch(line))
             {
                 FlushParagraph();
+                FlushBlanks();
 
                 // if switching list types, flush the previous list
                 if (listItems.Count > 0 && listType == ListType.Ordered)
@@ -248,7 +249,7 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
         };
 
         Console.WriteLine(
-            $"Converted image to base64: {path}; mimeType: {mimeType}; size: {bytes.Length} bytes"
+            $"Converted image to base64: {path}; mimeType: {mimeType}; size: {bytes.Length} bytes. ({DateTime.Now})"
         );
         return $"data:{mimeType};base64,{Convert.ToBase64String(bytes)}";
     }
@@ -318,7 +319,8 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
             }
             else if (first == imageMatch)
             {
-                var src = imageMatch.Groups[2].Value;
+                var originalPath = imageMatch.Groups[2].Value;
+                var src = originalPath;
 
                 // if src is a relative path, convert to base64
                 if (!src.StartsWith("data:"))
@@ -330,6 +332,7 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
                     new Image
                     {
                         Src = src,
+                        OriginalPath = originalPath.StartsWith("data:") ? null : originalPath, // keep original path if not data URI
                         Alt = imageMatch.Groups[1].Value,
                         Title = imageMatch.Groups[3].Success ? imageMatch.Groups[3].Value : null,
                     }

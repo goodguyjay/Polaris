@@ -194,8 +194,15 @@ public static class PolarXmlWriter
                     writer.WriteStartElement("img");
                     writer.WriteAttributeString("src", img.Src);
                     writer.WriteAttributeString("alt", img.Alt);
+                    if (!string.IsNullOrWhiteSpace(img.OriginalPath))
+                        writer.WriteAttributeString("original-path", img.OriginalPath);
                     if (!string.IsNullOrWhiteSpace(img.Title))
                         writer.WriteAttributeString("title", img.Title);
+                    writer.WriteEndElement();
+                    break;
+
+                case LineBreak:
+                    writer.WriteStartElement("br");
                     writer.WriteEndElement();
                     break;
             }

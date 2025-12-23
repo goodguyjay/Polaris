@@ -135,7 +135,8 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             InlineCode c => $"`{c.Code}`",
             Link l =>
                 $"[{string.Join("", l.Children.Select(InlineToText))}]({l.Href}{(l.Title != null ? $" \"{l.Title}\"" : "")})",
-            Image img => $"![{img.Alt}]({img.Src}{(img.Title != null ? $" \"{img.Title}\"" : "")})",
+            Image img =>
+                $"![{img.Alt}]({img.OriginalPath ?? img.Src}{(img.Title != null ? $" \"{img.Title}\"" : "")})", // Prefer original path if available
             LineBreak => "\n",
             _ => string.Empty,
         };
