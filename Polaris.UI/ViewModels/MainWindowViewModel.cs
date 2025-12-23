@@ -33,12 +33,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty]
     private bool _isSplashVisible = true;
 
-    private readonly PolarSyntaxParser _parser = new();
+    private readonly IPolarSyntaxParser _parser;
 
-    private readonly Window _mainWindow;
+    private Window? _mainWindow;
 
-    public MainWindowViewModel(Window mainWindow)
+    public MainWindowViewModel(IPolarSyntaxParser parser)
     {
+        _parser = parser;
+
         IsSplashVisible = true;
 #if !DEBUG
         _ = Task.Run(async () =>
@@ -47,7 +49,6 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             Avalonia.Threading.Dispatcher.UIThread.Post(() => IsSplashVisible = false);
         });
 #endif
-        _mainWindow = mainWindow;
 
         PropertyChanged += (_, e) =>
         {
@@ -67,6 +68,11 @@ public sealed partial class MainWindowViewModel : ViewModelBase
         _polarDocument = PolarDocumentParser.Load(fs);
         DocumentText = DocumentToPlainText(_polarDocument);
         PolarPreview = RenderPolarPreview(_polarDocument);
+    }
+
+    public void SetWindow(Window window)
+    {
+        _mainWindow = window;
     }
 
     public void DismissSplash() => IsSplashVisible = false;
@@ -171,7 +177,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     public async Task OpenPolarFileAsync()
     {
-        var files = await _mainWindow.StorageProvider.OpenFilePickerAsync(
+        var files = await _mainWindow!.StorageProvider.OpenFilePickerAsync(
             new FilePickerOpenOptions
             {
                 Title = "Open Polaris Document",
@@ -195,7 +201,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
     [RelayCommand]
     public async Task SavePolarFileAsync()
     {
-        var files = await _mainWindow.StorageProvider.SaveFilePickerAsync(
+        var files = await _mainWindow!.StorageProvider.SaveFilePickerAsync(
             new FilePickerSaveOptions
             {
                 Title = "Save Polaris File",

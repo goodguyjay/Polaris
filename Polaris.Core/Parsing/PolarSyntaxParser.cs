@@ -1,11 +1,13 @@
 ﻿using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using Polaris.Core.Document;
 using Polaris.Core.Document.Elements;
 using Polaris.Core.Document.InlineElements;
 
 namespace Polaris.Core.Parsing;
 
-public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
+public sealed partial class PolarSyntaxParser(ILogger<PolarSyntaxParser> logger)
+    : IPolarSyntaxParser
 {
     private string? _baseDirectory;
 
@@ -223,7 +225,7 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
                 }
             }
 
-            Console.WriteLine($"image not found: {path}");
+            logger.LogInformation("image not found: {Path}", path);
             return CreatePlaceholder($"[image not found: {path}]");
         }
         catch (Exception e)
