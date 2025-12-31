@@ -48,7 +48,7 @@ We’re working on the core editor, file format, and preview engine.
 
 ## License
 
-This project is licensed under the **GNU AGPLv3** — all forks, modifications, and hosted services derived from this code must remain open and free.
+AGPL-3.0 — This project is FOSS. All forks, contributions, and cloud-hosted versions must remain open and free.
 
 **Third-party libraries:**
 - This project uses [QuestPDF](https://www.questpdf.com/) under the QuestPDF Community License (MIT).
