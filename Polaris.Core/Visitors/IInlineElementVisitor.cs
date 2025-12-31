@@ -9,5 +9,6 @@ public interface IInlineElementVisitor<out T>
     T VisitLineBreak(LineBreak lineBreak);
     T VisitLink(Link link);
     T VisitStrong(Strong strong);
+    T VisitImage(Image image);
     T VisitTextRun(TextRun text);
 }

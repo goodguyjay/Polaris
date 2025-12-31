@@ -47,9 +47,6 @@ public static class PolarDocumentParser
                 }
             }
 
-            Console.WriteLine(
-                $"reader at: {reader.NodeType}, name: {reader.Name} // just before reading end element"
-            );
             reader.ReadEndElement();
         }
         else
@@ -57,11 +54,67 @@ public static class PolarDocumentParser
             reader.Read();
         }
 
-        Console.WriteLine(
-            $"reader at: {reader.NodeType}, name: {reader.Name} // after reading end element"
-        );
-
         return doc;
+    }
+
+    // helper: inline elements (basic impl, can be expanded)
+    private static List<InlineElement> ParseInlineElements(XmlReader reader)
+    {
+        var inlines = new List<InlineElement>();
+        if (reader.IsEmptyElement)
+        {
+            reader.Read();
+            return inlines;
+        }
+
+        reader.Read();
+
+        while (reader.NodeType != XmlNodeType.EndElement)
+        {
+            if (reader.NodeType == XmlNodeType.Text)
+            {
+                inlines.Add(new TextRun { Text = reader.Value });
+                reader.Read();
+            }
+            else if (reader.NodeType == XmlNodeType.Element)
+            {
+                switch (reader.Name)
+                {
+                    case "strong":
+                        inlines.Add(new Strong { Children = ParseInlineElements(reader) });
+                        reader.ReadEndElement();
+                        break;
+
+                    case "em":
+                        inlines.Add(new Emphasis { Children = ParseInlineElements(reader) });
+                        reader.ReadEndElement();
+                        break;
+
+                    case "a":
+                        inlines.Add(ParseLink(reader));
+                        break;
+
+                    case "code":
+                        inlines.Add(new InlineCode { Code = reader.ReadElementContentAsString() });
+                        break;
+
+                    case "img":
+                        inlines.Add(ParseImage(reader));
+                        break;
+
+                    case "br":
+                        reader.Read();
+                        inlines.Add(new LineBreak());
+                        break;
+
+                    default:
+                        reader.Skip();
+                        break;
+                }
+            }
+        }
+
+        return inlines;
     }
 
     private static Metadata ParseMetadata(XmlReader reader)
@@ -138,6 +191,8 @@ public static class PolarDocumentParser
             case "hr":
                 reader.ReadStartElement("hr");
                 return new HorizontalRule();
+            case "blank":
+                return ParseBlank(reader);
 
             default:
                 reader.Skip();
@@ -190,7 +245,7 @@ public static class PolarDocumentParser
         var typeStr = reader.GetAttribute("type") ?? "bullet";
         var list = new ListBlock
         {
-            Type = typeStr == "numbered" ? ListType.Numbered : ListType.Bullet,
+            Type = typeStr == "numbered" ? ListType.Ordered : ListType.Bullet,
             Id = reader.GetAttribute("id"),
             Style = reader.GetAttribute("style"),
         };
@@ -222,55 +277,11 @@ public static class PolarDocumentParser
         return code;
     }
 
-    // helper: inline elements (basic impl, can be expanded)
-    private static List<InlineElement> ParseInlineElements(XmlReader reader)
+    private static Blank ParseBlank(XmlReader reader)
     {
-        var inlines = new List<InlineElement>();
-        if (reader.IsEmptyElement)
-        {
-            reader.Read();
-            return inlines;
-        }
-
-        reader.Read();
-
-        while (reader.NodeType != XmlNodeType.EndElement)
-        {
-            if (reader.NodeType == XmlNodeType.Text)
-            {
-                inlines.Add(new TextRun { Text = reader.Value });
-                reader.Read();
-            }
-            else if (reader.NodeType == XmlNodeType.Element)
-            {
-                switch (reader.Name)
-                {
-                    case "strong":
-                        inlines.Add(new Strong { Children = ParseInlineElements(reader) });
-                        reader.ReadEndElement(); // </strong>
-                        break;
-
-                    case "em":
-                        inlines.Add(new Emphasis { Children = ParseInlineElements(reader) });
-                        reader.ReadEndElement(); // </em>
-                        break;
-
-                    case "a":
-                        inlines.Add(ParseLink(reader));
-                        break;
-
-                    case "code":
-                        inlines.Add(new InlineCode { Code = reader.ReadElementContentAsString() });
-                        break;
-
-                    default:
-                        reader.Skip();
-                        break;
-                }
-            }
-        }
-
-        return inlines;
+        var count = reader.GetAttribute("count");
+        reader.ReadStartElement("blank");
+        return new Blank { Count = int.TryParse(count, out var c) ? c : 1 };
     }
 
     private static Link ParseLink(XmlReader reader)
@@ -286,6 +297,22 @@ public static class PolarDocumentParser
         reader.ReadEndElement(); // </a>
 
         return link;
+    }
+
+    private static Image ParseImage(XmlReader reader)
+    {
+        var src = reader.GetAttribute("src") ?? string.Empty;
+        var alt = reader.GetAttribute("alt") ?? string.Empty;
+        var originalPath = reader.GetAttribute("original-path");
+        var title = reader.GetAttribute("title");
+        reader.ReadStartElement("img");
+        return new Image
+        {
+            Src = src,
+            OriginalPath = originalPath,
+            Alt = alt,
+            Title = title,
+        };
     }
 
     private static DateTime? ParseDate(string? value)

@@ -6,7 +6,8 @@ public interface IBlockElementVisitor<out T>
 {
     T VisitCodeBlock(CodeBlock codeBlock);
     T VisitHeading(Heading heading);
-    T VisitHorizontalRule(HorizontalRule horizontalRule);
+    T VisitHorizontalRule(HorizontalRule _);
     T VisitListBlock(ListBlock listBlock);
     T VisitParagraph(Paragraph paragraph);
+    T VisitBlank(Blank blank);
 }

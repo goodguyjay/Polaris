@@ -20,7 +20,10 @@
         <controls:SplashScreen x:Name="Splash" IsVisible="{Binding IsSplashVisible}" />
 
         <DockPanel Background="#181A20" IsVisible="{Binding IsSplashVisible, Converter={StaticResource InverseBooleanConverter}}">
-            <controls:TitleBar OpenFileCommand="{Binding OpenPolarFileAsync}" SaveFileCommand="{Binding SavePolarFileAsync}" />
+            <controls:TitleBar
+                ExportFileCommand="{Binding ExportPolarPdfAsync}"
+                OpenFileCommand="{Binding OpenPolarFileAsync}"
+                SaveFileCommand="{Binding SavePolarFileAsync}" />
 
             <Grid
                 Margin="0,0,0,0"

@@ -1,21 +1,29 @@
 ﻿using System.Text.RegularExpressions;
+using Microsoft.Extensions.Logging;
 using Polaris.Core.Document;
 using Polaris.Core.Document.Elements;
 using Polaris.Core.Document.InlineElements;
 
 namespace Polaris.Core.Parsing;
 
-public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
+public sealed partial class PolarSyntaxParser(ILogger<PolarSyntaxParser> logger)
+    : IPolarSyntaxParser
 {
-    public PolarDocument Parse(string input)
+    private string? _baseDirectory;
+
+    public PolarDocument Parse(string input, string? baseDirectory = null)
     {
+        _baseDirectory = baseDirectory;
+
         var doc = new PolarDocument();
         var lines = input.Split('\n');
         var paragraphLines = new List<string>();
         var listItems = new List<string>();
+        var listType = ListType.Bullet;
         var inCodeBlock = false;
         string? codeLang = null;
         var codeLines = new List<string>();
+        var blankLineCount = 0;
 
         foreach (var lineRaw in lines)
         {
@@ -25,6 +33,7 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
             {
                 FlushParagraph();
                 FlushList();
+                FlushBlanks();
 
                 if (!inCodeBlock)
                 {
@@ -52,7 +61,27 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
 
             if (string.IsNullOrEmpty(line))
             {
-                paragraphLines.Add(string.Empty);
+                // flush active contexts
+                if (listItems.Count > 0)
+                {
+                    FlushList();
+                }
+
+                if (paragraphLines.Count > 0)
+                {
+                    FlushParagraph();
+                }
+
+                blankLineCount++;
+                continue;
+            }
+
+            if (HorizontalRuleRegex().IsMatch(line))
+            {
+                FlushParagraph();
+                FlushList();
+                FlushBlanks();
+                doc.Blocks.Add(new HorizontalRule());
                 continue;
             }
 
@@ -68,11 +97,36 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
                 continue;
             }
 
-            if (ListItemRegex().IsMatch(line))
+            if (BulletListItemRegex().IsMatch(line))
             {
                 FlushParagraph();
-                listItems.Add(line.TrimStart('-', ' '));
+                FlushBlanks();
 
+                // if switching list types, flush the previous list
+                if (listItems.Count > 0 && listType == ListType.Ordered)
+                {
+                    FlushList();
+                }
+
+                listType = ListType.Bullet;
+                listItems.Add(line.TrimStart('-', '*', '+', ' '));
+                continue;
+            }
+
+            if (OrderedListItemRegex().IsMatch(line))
+            {
+                FlushParagraph();
+                FlushBlanks();
+
+                // if switching list types, flush the previous list
+                if (listItems.Count > 0 && listType == ListType.Bullet)
+                {
+                    FlushList();
+                }
+
+                listType = ListType.Ordered;
+                var match = OrderedListItemRegex().Match(line);
+                listItems.Add(match.Groups[2].Value); // capture text after number and dot
                 continue;
             }
 
@@ -81,11 +135,14 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
                 FlushList();
             }
 
+            FlushBlanks();
+
             paragraphLines.Add(line);
         }
 
         FlushParagraph();
         FlushList();
+        FlushBlanks();
 
         return doc;
 
@@ -95,6 +152,13 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
                 return;
 
             var paragraphText = string.Join('\n', paragraphLines);
+
+            if (string.IsNullOrWhiteSpace(paragraphText))
+            {
+                paragraphLines.Clear();
+                return;
+            }
+
             doc.Blocks.Add(new Paragraph { Inlines = ParseInlines(paragraphText) });
             paragraphLines.Clear();
         }
@@ -107,7 +171,7 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
             doc.Blocks.Add(
                 new ListBlock
                 {
-                    Type = ListType.Bullet,
+                    Type = listType,
                     Items = listItems
                         .Select(text => new ListItem { Inlines = ParseInlines(text) })
                         .ToList(),
@@ -115,9 +179,18 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
             );
             listItems.Clear();
         }
+
+        void FlushBlanks()
+        {
+            if (blankLineCount <= 0)
+                return;
+
+            doc.Blocks.Add(new Blank { Count = blankLineCount });
+            blankLineCount = 0;
+        }
     }
 
-    private static List<InlineElement> ParseInlines(string text)
+    private List<InlineElement> ParseInlines(string text)
     {
         var inlines = new List<InlineElement>();
         var lines = text.Split('\n');
@@ -132,7 +205,63 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
         return inlines;
     }
 
-    private static List<InlineElement> ParseInlineFormatting(string text)
+    private string ConvertImageToBase64(string path)
+    {
+        try
+        {
+            // try first as absolute path
+            if (Path.IsPathRooted(path) && File.Exists(path))
+            {
+                return ReadAndEncodeImage(path);
+            }
+
+            // then try relative to base directory
+            if (_baseDirectory != null)
+            {
+                var resolvedPath = Path.Combine(_baseDirectory, path);
+                if (File.Exists(resolvedPath))
+                {
+                    return ReadAndEncodeImage(resolvedPath);
+                }
+            }
+
+            logger.LogInformation("image not found: {Path}", path);
+            return CreatePlaceholder($"[image not found: {path}]");
+        }
+        catch (Exception e)
+        {
+            // if it fails, return a placeholder
+            return CreatePlaceholder($"[error loading image: {e.Message}]");
+        }
+    }
+
+    private static string ReadAndEncodeImage(string path)
+    {
+        var bytes = File.ReadAllBytes(path);
+        var ext = Path.GetExtension(path).ToLowerInvariant();
+
+        var mimeType = ext switch
+        {
+            ".png" => "image/png",
+            ".jpg" or ".jpeg" => "image/jpeg",
+            ".gif" => "image/gif",
+            ".webp" => "image/webp",
+            ".svg" => "image/svg+xml",
+            _ => "application/octet-stream",
+        };
+
+        Console.WriteLine(
+            $"Converted image to base64: {path}; mimeType: {mimeType}; size: {bytes.Length} bytes. ({DateTime.Now})"
+        );
+        return $"data:{mimeType};base64,{Convert.ToBase64String(bytes)}";
+    }
+
+    private static string CreatePlaceholder(string message)
+    {
+        return $"data:text/plain;base64,{Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(message))}";
+    }
+
+    private List<InlineElement> ParseInlineFormatting(string text)
     {
         var inlines = new List<InlineElement>();
 
@@ -144,8 +273,10 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
             var boldMatch = BoldRegex().Match(remaining);
             var italicMatch = ItalicRegex().Match(remaining);
             var codeMatch = CodeRegex().Match(remaining);
+            var linkMatch = LinkRegex().Match(remaining);
+            var imageMatch = ImageRegex().Match(remaining);
 
-            var first = new[] { boldMatch, italicMatch, codeMatch }
+            var first = new[] { boldMatch, italicMatch, codeMatch, linkMatch, imageMatch }
                 .Where(m => m.Success)
                 .OrderBy(m => m.Index)
                 .FirstOrDefault();
@@ -177,6 +308,38 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
             {
                 inlines.Add(new InlineCode { Code = codeMatch.Groups[1].Value });
             }
+            else if (first == linkMatch)
+            {
+                inlines.Add(
+                    new Link
+                    {
+                        Href = linkMatch.Groups[2].Value,
+                        Title = linkMatch.Groups[3].Success ? linkMatch.Groups[3].Value : null,
+                        Children = [new TextRun { Text = linkMatch.Groups[1].Value }],
+                    }
+                );
+            }
+            else if (first == imageMatch)
+            {
+                var originalPath = imageMatch.Groups[2].Value;
+                var src = originalPath;
+
+                // if src is a relative path, convert to base64
+                if (!src.StartsWith("data:"))
+                {
+                    src = ConvertImageToBase64(src);
+                }
+
+                inlines.Add(
+                    new Image
+                    {
+                        Src = src,
+                        OriginalPath = originalPath.StartsWith("data:") ? null : originalPath, // keep original path if not data URI
+                        Alt = imageMatch.Groups[1].Value,
+                        Title = imageMatch.Groups[3].Success ? imageMatch.Groups[3].Value : null,
+                    }
+                );
+            }
 
             remaining = remaining[(first.Index + first.Length)..];
         }
@@ -187,8 +350,14 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
     [GeneratedRegex(@"^(#{1,6})\s+(.*)$")]
     private static partial Regex HeadingRegex();
 
-    [GeneratedRegex(@"^\s*-\s")]
-    private static partial Regex ListItemRegex();
+    [GeneratedRegex(@"^---+$|^\*\*\*+$|^___+$")]
+    private static partial Regex HorizontalRuleRegex();
+
+    [GeneratedRegex(@"^\s*[-*+]\s")]
+    private static partial Regex BulletListItemRegex();
+
+    [GeneratedRegex(@"^\s*(\d+)\.\s+(.*)$")]
+    private static partial Regex OrderedListItemRegex();
 
     [GeneratedRegex(@"\*\*(.+?)\*\*")]
     private static partial Regex BoldRegex();
@@ -198,4 +367,21 @@ public sealed partial class PolarSyntaxParser : IPolarSyntaxParser
 
     [GeneratedRegex("`(.+?)`")]
     private static partial Regex CodeRegex();
+
+    /// <summary>
+    ///  Example: [link text](https://example.com "optional title")
+    /// </summary>
+    /// <returns></returns>
+    [GeneratedRegex("""\[([^\]]+)\]\(([^\)]+?)(?:\s+"([^"]*)")?\)""")]
+    private static partial Regex LinkRegex();
+
+    /// <summary>
+    /// Group 1: alt text
+    /// Group 2: image URL
+    /// Group 3: optional title
+    /// Example: ![alt text](https://example.com/image.png "optional title")
+    /// </summary>
+    /// <returns></returns>
+    [GeneratedRegex("""!\[([^\]]*)\]\(([^\)]+?)(?:\s+"([^"]*)")?\)""")]
+    private static partial Regex ImageRegex();
 }

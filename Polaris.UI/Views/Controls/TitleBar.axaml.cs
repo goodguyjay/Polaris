@@ -11,12 +11,15 @@ public sealed partial class TitleBar : UserControl
     {
         InitializeComponent();
     }
-    
+
     public static readonly StyledProperty<ICommand> OpenFileCommandProperty =
         AvaloniaProperty.Register<TitleBar, ICommand>(nameof(OpenFileCommand));
-    
+
     public static readonly StyledProperty<ICommand> SaveFileCommandProperty =
         AvaloniaProperty.Register<TitleBar, ICommand>(nameof(SaveFileCommand));
+
+    public static readonly StyledProperty<ICommand> ExportFileCommandProperty =
+        AvaloniaProperty.Register<TitleBar, ICommand>(nameof(ExportFileCommand));
 
     public ICommand OpenFileCommand
     {
@@ -28,6 +31,12 @@ public sealed partial class TitleBar : UserControl
     {
         get => GetValue(SaveFileCommandProperty);
         set => SetValue(SaveFileCommandProperty, value);
+    }
+
+    public ICommand ExportFileCommand
+    {
+        get => GetValue(ExportFileCommandProperty);
+        set => SetValue(ExportFileCommandProperty, value);
     }
 
     private void MinimizeWindow(object? sender, RoutedEventArgs e)

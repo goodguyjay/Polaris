@@ -100,6 +100,46 @@ public static class PolarXmlWriter
                 WriteInlines(p.Inlines, writer);
                 break;
             }
+            case CodeBlock cb:
+            {
+                writer.WriteStartElement("code");
+                if (!string.IsNullOrWhiteSpace(cb.Language))
+                    writer.WriteAttributeString("language", cb.Language);
+                WriteCommonBlockAttributes(cb, writer);
+                writer.WriteString(cb.Code);
+                break;
+            }
+            case HorizontalRule hr:
+            {
+                writer.WriteStartElement("hr");
+                WriteCommonBlockAttributes(hr, writer);
+                // self closing, no content
+                break;
+            }
+            case ListBlock lb:
+            {
+                writer.WriteStartElement("list");
+                writer.WriteAttributeString("type", lb.Type.ToString().ToLowerInvariant()); // "bullet" or "ordered"
+                WriteCommonBlockAttributes(lb, writer);
+
+                foreach (var item in lb.Items)
+                {
+                    writer.WriteStartElement("item");
+                    WriteInlines(item.Inlines, writer);
+                    writer.WriteEndElement();
+                }
+
+                break;
+            }
+            case Blank b:
+            {
+                writer.WriteStartElement("blank");
+                if (b.Count > 1)
+                    writer.WriteAttributeString("count", b.Count.ToString());
+                WriteCommonBlockAttributes(b, writer);
+                // self closing, no content
+                break;
+            }
         }
 
         writer.WriteEndElement();
@@ -147,6 +187,22 @@ public static class PolarXmlWriter
                 case InlineCode code:
                     writer.WriteStartElement("code");
                     writer.WriteString(code.Code);
+                    writer.WriteEndElement();
+                    break;
+
+                case Image img:
+                    writer.WriteStartElement("img");
+                    writer.WriteAttributeString("src", img.Src);
+                    writer.WriteAttributeString("alt", img.Alt);
+                    if (!string.IsNullOrWhiteSpace(img.OriginalPath))
+                        writer.WriteAttributeString("original-path", img.OriginalPath);
+                    if (!string.IsNullOrWhiteSpace(img.Title))
+                        writer.WriteAttributeString("title", img.Title);
+                    writer.WriteEndElement();
+                    break;
+
+                case LineBreak:
+                    writer.WriteStartElement("br");
                     writer.WriteEndElement();
                     break;
             }

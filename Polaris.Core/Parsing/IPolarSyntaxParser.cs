@@ -4,5 +4,5 @@ namespace Polaris.Core.Parsing;
 
 public interface IPolarSyntaxParser
 {
-    PolarDocument Parse(string input);
+    PolarDocument Parse(string input, string? baseDirectory = null);
 }
