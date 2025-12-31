@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polaris.UI", "Polaris.UI\Po
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polaris.Core", "Polaris.Core\Polaris.Core.csproj", "{4E1409E4-F2E4-4F19-9833-63EEA7C203BA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Polaris.Pdf", "Polaris.Pdf\Polaris.Pdf.csproj", "{A3B11A33-F91C-4E60-9045-9C0C9EC36D71}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,14 @@ Global
 		{4E1409E4-F2E4-4F19-9833-63EEA7C203BA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4E1409E4-F2E4-4F19-9833-63EEA7C203BA}.Release|x64.ActiveCfg = Release|Any CPU
 		{4E1409E4-F2E4-4F19-9833-63EEA7C203BA}.Release|x64.Build.0 = Release|Any CPU
+		{A3B11A33-F91C-4E60-9045-9C0C9EC36D71}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3B11A33-F91C-4E60-9045-9C0C9EC36D71}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3B11A33-F91C-4E60-9045-9C0C9EC36D71}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A3B11A33-F91C-4E60-9045-9C0C9EC36D71}.Debug|x64.Build.0 = Debug|Any CPU
+		{A3B11A33-F91C-4E60-9045-9C0C9EC36D71}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3B11A33-F91C-4E60-9045-9C0C9EC36D71}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3B11A33-F91C-4E60-9045-9C0C9EC36D71}.Release|x64.ActiveCfg = Release|Any CPU
+		{A3B11A33-F91C-4E60-9045-9C0C9EC36D71}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

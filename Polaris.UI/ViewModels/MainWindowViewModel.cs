@@ -12,7 +12,9 @@ using CommunityToolkit.Mvvm.Input;
 using Polaris.Core.Document;
 using Polaris.Core.Document.Elements;
 using Polaris.Core.Document.InlineElements;
+using Polaris.Core.Export;
 using Polaris.Core.Parsing;
+using Polaris.Pdf;
 using Polaris.UI.DocumentRendering;
 using Image = Polaris.Core.Document.InlineElements.Image;
 
@@ -35,11 +37,14 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
     private readonly IPolarSyntaxParser _parser;
 
+    private readonly IPdfGenerator _pdfGenerator;
+
     private Window? _mainWindow;
 
-    public MainWindowViewModel(IPolarSyntaxParser parser)
+    public MainWindowViewModel(IPolarSyntaxParser parser, IPdfGenerator pdfGenerator)
     {
         _parser = parser;
+        _pdfGenerator = pdfGenerator;
 
         IsSplashVisible = true;
 #if !DEBUG
@@ -215,5 +220,57 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             await using var stream = await files.OpenWriteAsync();
             PolarXmlWriter.Save(_polarDocument, stream);
         }
+    }
+
+    [RelayCommand]
+    public async Task ExportPolarPdfAsync()
+    {
+        if (_polarDocument is null)
+        {
+            // add dialogs boxes when ready
+            return;
+        }
+
+        var file = await _mainWindow!.StorageProvider.SaveFilePickerAsync(
+            new FilePickerSaveOptions
+            {
+                Title = "Export to PDF",
+                SuggestedFileName = "Untitled.pdf",
+                FileTypeChoices = [new FilePickerFileType("PDF") { Patterns = ["*.pdf"] }],
+            }
+        );
+
+        if (file is not null)
+        {
+            var options = new PdfOptions
+            {
+                Template = CreateDefaultTemplate(), // temporary
+                Title = _polarDocument.Metadata.Title ?? "Untitled Document",
+            };
+
+            var pdfBytes = _pdfGenerator.Generate(_polarDocument, options);
+
+            await using var stream = await file.OpenWriteAsync();
+            await stream.WriteAsync(pdfBytes);
+        }
+    }
+
+    // super temporary
+    private static PdfTemplateConfig CreateDefaultTemplate()
+    {
+        return new PdfTemplateConfig
+        {
+            FontFamily = "Arial",
+            FontSize = 12,
+            LineHeight = 1.5f,
+            TextColor = "#000000",
+            Margins = new MarginsConfig(2.0f, 2.0f, 2.0f, 2.0f),
+            Heading1Size = 2.0f,
+            Heading2Size = 1.5f,
+            Heading3Size = 1.25f,
+            Heading4Size = 1.1f,
+            Heading5Size = 1.0f,
+            Heading6Size = 0.9f,
+        };
     }
 }

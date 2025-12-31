@@ -109,6 +109,7 @@
                 Background="#2A2D3A"
                 BorderBrush="#7EC7FF"
                 BorderThickness="0"
+                Command="{Binding ExportFileCommand, RelativeSource={RelativeSource AncestorType=local:TitleBar}}"
                 Content="Export"
                 CornerRadius="10"
                 FontSize="13"

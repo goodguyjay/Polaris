@@ -6,6 +6,7 @@ using Avalonia.Markup.Xaml;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Polaris.Core.Parsing;
+using Polaris.Pdf;
 using Polaris.UI.ViewModels;
 using Polaris.UI.Views;
 
@@ -35,6 +36,7 @@ public partial class App : Application
 
         // register services
         services.AddSingleton<IPolarSyntaxParser, PolarSyntaxParser>();
+        services.AddTransient<IPdfGenerator, PdfGenerator>();
         services.AddTransient<MainWindowViewModel>();
 
         _serviceProvider = services.BuildServiceProvider();
